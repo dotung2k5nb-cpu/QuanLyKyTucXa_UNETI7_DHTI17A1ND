@@ -1,0 +1,35 @@
+@model QuanLyKyTucXa_UNETI7_TI17A1ND.Models.DangKyListVM
+
+<h2>Danh sách đăng ký KTX chờ xử lý</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Mã SV</th>
+            <th>Họ tên</th>
+            <th>Ngày đăng ký</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.MaSinhVien</td>
+                <td>@item.SinhVien.HoTen</td>
+                <td>@item.NgayDangKy.ToString("dd/MM/yyyy")</td>
+                <td>@item.TrangThai</td>
+                <td>
+                    <a asp-action="Duyet" asp-route-id="@item.MaDangKy" class="btn btn-success btn-sm">Duyệt</a>
+                    <a asp-action="TuChoi" asp-route-id="@item.MaDangKy" class="btn btn-danger btn-sm">Từ chối</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
