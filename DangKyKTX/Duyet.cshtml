@@ -1,0 +1,40 @@
+@model QuanLyKyTucXa_UNETI7_TI17A1ND.Models.DangKyKTX
+
+<h2>Duyệt đăng ký KTX cho @Model.SinhVien.HoTen</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<form asp-action="Duyet" method="post">
+    <input type="hidden" name="id" value="@Model.MaDangKy" />
+    
+    <div class="form-group">
+        <label>Mã sinh viên:</label>
+        <input type="text" class="form-control" value="@Model.MaSinhVien" readonly />
+    </div>
+    
+    <div class="form-group">
+        <label>Họ tên:</label>
+        <input type="text" class="form-control" value="@Model.SinhVien.HoTen" readonly />
+    </div>
+    
+    <div class="form-group">
+        <label>Phòng trống phù hợp:</label>
+        <select name="MaPhong" class="form-control" required>
+            @foreach (var phong in ViewBag.PhongTrong as SelectList)
+            {
+                <option value="@phong.Value">@phong.Text</option>
+            }
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label>Ngày vào:</label>
+        <input type="date" name="NgayVao" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Xác nhận phân phòng</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>
