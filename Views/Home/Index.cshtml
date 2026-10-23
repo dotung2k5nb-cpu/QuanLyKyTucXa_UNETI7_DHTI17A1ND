@@ -1,0 +1,34 @@
+@*
+Họ và tên: Đỗ Văn Tùng
+Mã sinh viên: 23203100028
+Nội dung thực hiện: Tài khoản, đăng nhập, phân quyền, quản lý loại phòng
+*@
+<div class="detail-hero student-welcome">
+    <span class="head-kicker">UNETI Housing · Student portal</span>
+    <h2>Xin chào @Context.Session.GetString("HoTen")</h2>
+    <p>Tra cứu phòng, gửi nguyện vọng nội trú và theo dõi hồ sơ của bạn từ một nơi.</p>
+    <div class="form-actions">
+        <a class="btn" asp-controller="DangKyKTX" asp-action="Create">Đăng ký ở KTX</a>
+        <a class="btn btn-secondary" asp-controller="PhongKTX" asp-action="Index">Khám phá phòng</a>
+    </div>
+</div>
+<div class="panel-grid">
+    <a class="panel portal-card" asp-controller="PhongKTX" asp-action="Index">
+        <span class="summary-icon">🏠</span>
+        <h3>Danh sách phòng</h3>
+        <p>Xem các phòng đang hoạt động và còn khả năng tiếp nhận.</p>
+        <strong class="portal-link">Khám phá phòng <span aria-hidden="true">→</span></strong>
+    </a>
+    <a class="panel portal-card" asp-controller="DangKyKTX" asp-action="Create">
+        <span class="summary-icon">📝</span>
+        <h3>Đăng ký ở KTX</h3>
+        <p>Gửi thời gian lưu trú dự kiến và nguyện vọng loại phòng.</p>
+        <strong class="portal-link">Tạo đăng ký <span aria-hidden="true">→</span></strong>
+    </a>
+    <a class="panel portal-card" asp-controller="DangKyKTX" asp-action="Me">
+        <span class="summary-icon">👤</span>
+        <h3>Thông tin của tôi</h3>
+        <p>Theo dõi đăng ký, phòng hiện tại và lịch sử lưu trú.</p>
+        <strong class="portal-link">Xem hồ sơ <span aria-hidden="true">→</span></strong>
+    </a>
+</div>
