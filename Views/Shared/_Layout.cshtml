@@ -1,0 +1,203 @@
+@*
+Họ và tên: Đỗ Văn Tùng
+Mã sinh viên: 23203100028
+Nội dung thực hiện: Menu thay đổi theo vai trò Admin/Sinh viên, đăng xuất
+*@
+@{
+    var vt = Context.Session.GetString("VaiTro");
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var showLoginTransition = TempData["LoginTransition"] is bool loginTransition && loginTransition;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quản lý ký túc xá UNETI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/style.css" asp-append-version="true" />
+</head>
+<body class="@(showLoginTransition ? "login-success-transition" : "") @(vt == null ? "is-guest" : "")">
+    <div class="app-shell">
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                @if (vt == TT.Admin)
+                {
+                    <a asp-controller="ThongKe" asp-action="Index" class="side-link @(currentController == "ThongKe" ? "active" : "")"><span class="side-icon">📊</span> Dashboard</a>
+                    <a asp-controller="LoaiPhong" asp-action="Index" class="side-link @(currentController == "LoaiPhong" ? "active" : "")"><span class="side-icon">🏠</span> Loại phòng</a>
+                    <a asp-controller="PhongKTX" asp-action="Index" class="side-link @(currentController == "PhongKTX" ? "active" : "")"><span class="side-icon">🛏️</span> Phòng</a>
+                    <a asp-controller="SinhVien" asp-action="Index" class="side-link @(currentController == "SinhVien" ? "active" : "")"><span class="side-icon">👨‍🎓</span> Sinh viên</a>
+                    <a asp-controller="DangKyKTX" asp-action="Index" class="side-link @(currentController == "DangKyKTX" ? "active" : "")"><span class="side-icon">📝</span> Đăng ký</a>
+                    <a asp-controller="PhanPhong" asp-action="Index" class="side-link @(currentController == "PhanPhong" ? "active" : "")"><span class="side-icon">✅</span> Phân phòng</a>
+                }
+                else if (vt == TT.SinhVien)
+                {
+                    <a asp-controller="Home" asp-action="Index" class="side-link @(currentController == "Home" ? "active" : "")"><span class="side-icon">🏡</span> Trang chủ</a>
+                    <a asp-controller="PhongKTX" asp-action="Index" class="side-link @(currentController == "PhongKTX" ? "active" : "")"><span class="side-icon">📋</span> Danh sách phòng</a>
+                    <a asp-controller="DangKyKTX" asp-action="Create" class="side-link @(currentController == "DangKyKTX" && currentAction == "Create" ? "active" : "")"><span class="side-icon">🧾</span> Đăng ký KTX</a>
+                    <a asp-controller="DangKyKTX" asp-action="Me" class="side-link @(currentController == "DangKyKTX" && currentAction == "Me" ? "active" : "")"><span class="side-icon">👤</span> Thông tin của tôi</a>
+                }
+            </nav>
+
+            @if (vt != null)
+            {
+                <div class="sidebar-profile">
+                    <div class="profile-ring"></div>
+                    <div>
+                        <div class="profile-name">@Context.Session.GetString("HoTen")</div>
+                        <div class="profile-role">@vt</div>
+                    </div>
+                </div>
+
+                <div class="sidebar-actions">
+                    <a asp-controller="TaiKhoan" asp-action="DoiMatKhau" class="nav-chip">Đổi mật khẩu</a>
+                    <form class="inline" method="post" asp-controller="TaiKhoan" asp-action="Logout">
+                        <button class="linkbtn">Đăng xuất</button>
+                    </form>
+                </div>
+            }
+        </aside>
+
+        <div class="main-area">
+            <header class="topbar">
+                <div class="topbar-title">
+                    <span class="title-kicker">Hệ thống</span>
+                    <h1>Quản lý ký túc xá</h1>
+                </div>
+
+                <div class="topbar-tools">
+                    <button id="themeToggle" class="icon-button" type="button" aria-label="Chuyển đổi theme">🌙</button>
+                </div>
+            </header>
+
+            <main class="page-shell">
+                @if (TempData["Ok"] != null)
+                {
+                    <div class="toast ok">@TempData["Ok"]</div>
+                }
+                @if (TempData["Loi"] != null)
+                {
+                    <div class="toast err">@TempData["Loi"]</div>
+                }
+
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="globalModal" aria-hidden="true" hidden>
+        <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <button type="button" class="modal-close" aria-label="Đóng popup">×</button>
+            <div class="modal-header">
+                <h3 id="modalTitle">Thông báo</h3>
+            </div>
+            <div class="modal-body" id="modalBody">Nội dung popup</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-dismiss">Đóng</button>
+                <button type="button" class="btn modal-confirm" id="modalConfirm" hidden>Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        $(function () {
+            var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            $(document).on('submit', '.login-transition-form', function (e) {
+                if (reducedMotion || e.isDefaultPrevented() || this.dataset.transitioning === 'true') return;
+
+                var form = this;
+                var submitter = e.originalEvent && e.originalEvent.submitter;
+                form.dataset.transitioning = 'true';
+                e.preventDefault();
+                $('body').addClass('login-submitting');
+                window.setTimeout(function () {
+                    form.requestSubmit(submitter || undefined);
+                }, 240);
+            });
+
+            var savedTheme = localStorage.getItem('ktxTheme');
+            if (savedTheme === 'light') {
+                $('body').addClass('theme-light');
+                $('#themeToggle').text('☀️');
+            }
+
+            $('#themeToggle').on('click', function () {
+                $('body').toggleClass('theme-light');
+                var isLight = $('body').hasClass('theme-light');
+                localStorage.setItem('ktxTheme', isLight ? 'light' : 'dark');
+                $(this).text(isLight ? '☀️' : '🌙');
+            });
+
+            var $toast = $('.toast');
+            if ($toast.length) {
+                $toast.each(function () {
+                    var $el = $(this);
+                    setTimeout(function () {
+                        $el.addClass('toast-hide');
+                        setTimeout(function () { $el.remove(); }, 300);
+                    }, 3500);
+                });
+            }
+
+            $(document).on('click', '.modal-trigger', function (e) {
+                e.preventDefault();
+                var $btn = $(this);
+                var title = $btn.data('title') || 'Thông báo';
+                var text = $btn.data('content') || $btn.attr('title') || 'Nội dung popup';
+                $('#modalTitle').text(title);
+                $('#modalBody').text(text);
+                $('#modalConfirm').prop('hidden', true);
+                $('#globalModal').prop('hidden', false).addClass('show').attr('aria-hidden', 'false');
+                $('.modal-close').first().trigger('focus');
+            });
+
+            var pendingForm = null;
+            var confirmedForm = null;
+            $(document).on('submit', 'form[data-confirm]', function (e) {
+                if (confirmedForm === this) {
+                    confirmedForm = null;
+                    return;
+                }
+
+                e.preventDefault();
+                pendingForm = this;
+                $('#modalTitle').text($(this).data('confirm-title') || 'Xác nhận thao tác');
+                $('#modalBody').text($(this).data('confirm'));
+                $('#modalConfirm').text($(this).data('confirm-button') || 'Xác nhận').prop('hidden', false);
+                $('#globalModal').prop('hidden', false).addClass('show').attr('aria-hidden', 'false');
+                $('#modalConfirm').trigger('focus');
+            });
+
+            $('#modalConfirm').on('click', function () {
+                if (!pendingForm) return;
+                confirmedForm = pendingForm;
+                pendingForm = null;
+                $('#globalModal').removeClass('show').attr('aria-hidden', 'true').prop('hidden', true);
+                confirmedForm.requestSubmit();
+            });
+
+            $(document).on('click', '.modal-close, .modal-dismiss, .modal-backdrop', function (e) {
+                if (e.target === this || $(e.target).hasClass('modal-close') || $(e.target).hasClass('modal-dismiss') || $(e.target).hasClass('modal-backdrop')) {
+                    pendingForm = null;
+                    $('#modalConfirm').prop('hidden', true);
+                    $('#globalModal').removeClass('show').attr('aria-hidden', 'true').prop('hidden', true);
+                }
+            });
+
+            $(document).keydown(function (e) {
+                if (e.key === 'Escape') {
+                    pendingForm = null;
+                    $('#modalConfirm').prop('hidden', true);
+                    $('#globalModal').removeClass('show').attr('aria-hidden', 'true').prop('hidden', true);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
