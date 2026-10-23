@@ -1,0 +1,29 @@
+@*
+Họ và tên: Đỗ Văn Tùng
+Mã sinh viên: 23203100028
+Nội dung thực hiện: Tài khoản, đăng nhập, phân quyền, quản lý loại phòng
+*@
+@model List<LoaiPhong>
+<div class="page-header">
+    <div class="head-copy">
+        <span class="head-kicker">Catalog</span>
+        <h2>Loại phòng</h2>
+    </div>
+    <a class="btn" asp-action="Create">Thêm mới</a>
+</div>
+<div class="table-panel">
+    <div class="table-wrap">
+        <table>
+            <tr><th>Tên</th><th>Số người tối đa</th><th>Đơn giá/tháng</th><th>Mô tả</th><th>Trạng thái</th><th>Hành động</th></tr>
+            @foreach (var x in Model) {
+            <tr>
+                <td>@x.TenLoaiPhong</td>
+                <td>@x.SoNguoiToiDa</td>
+                <td>@x.DonGiaThang.ToString("N0") đ</td>
+                <td>@x.MoTa</td>
+                <td><span class="status-pill">@x.TrangThai</span></td>
+                <td><div class="actions-cell"><a class="btn btn-secondary" asp-action="Edit" asp-route-id="@x.MaLoaiPhong">Sửa</a><form class="inline" method="post" asp-action="Delete" asp-route-id="@x.MaLoaiPhong" data-confirm="Bạn có chắc muốn xóa loại phòng này? Thao tác này không thể hoàn tác." data-confirm-title="Xóa loại phòng"><button class="btn2">Xóa</button></form></div></td>
+            </tr> }
+        </table>
+    </div>
+</div>
