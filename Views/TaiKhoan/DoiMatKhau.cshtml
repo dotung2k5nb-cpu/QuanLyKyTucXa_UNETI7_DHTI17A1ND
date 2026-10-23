@@ -1,0 +1,17 @@
+@*
+Họ và tên: Đỗ Văn Tùng
+Mã sinh viên: 23203100028
+Nội dung thực hiện: Đổi mật khẩu
+*@
+@model DoiMatKhauVM
+<div class="page-header"><div class="head-copy"><span class="head-kicker">Security</span><h2>Đổi mật khẩu</h2></div></div>
+<div asp-validation-summary="ModelOnly"></div>
+<div class="form-card">
+<p class="form-intro">Dùng mật khẩu mạnh và không chia sẻ thông tin đăng nhập của bạn.</p>
+<form method="post" asp-action="DoiMatKhau" class="f">
+<label asp-for="MatKhauCu"></label><input asp-for="MatKhauCu" autofocus /><span asp-validation-for="MatKhauCu"></span>
+<label asp-for="MatKhauMoi"></label><input asp-for="MatKhauMoi" /><span asp-validation-for="MatKhauMoi"></span>
+<label asp-for="XacNhan"></label><input asp-for="XacNhan" /><span asp-validation-for="XacNhan"></span>
+<div class="form-actions"><button type="submit">Đổi mật khẩu</button></div></form>
+<p><small>Mật khẩu mới từ 8 ký tự trở lên và phải khác mật khẩu hiện tại.</small></p>
+</div>

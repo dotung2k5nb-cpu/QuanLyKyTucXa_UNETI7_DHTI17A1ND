@@ -1,0 +1,18 @@
+@*
+Họ và tên: Đỗ Văn Tùng
+Mã sinh viên: 23203100028
+Nội dung thực hiện: Tài khoản, đăng nhập, phân quyền, quản lý loại phòng
+*@
+@model LoaiPhong
+<div class="page-header"><div class="head-copy"><span class="head-kicker">Catalog</span><h2>@(Model.MaLoaiPhong == 0 ? "Thêm" : "Sửa") loại phòng</h2></div></div>
+<div class="form-card">
+<p class="form-intro">Cập nhật thông tin, sức chứa và trạng thái loại phòng.</p>
+<form method="post" class="f">
+<input type="hidden" asp-for="MaLoaiPhong" />
+<label asp-for="TenLoaiPhong"></label><input asp-for="TenLoaiPhong" /><span asp-validation-for="TenLoaiPhong"></span>
+<label asp-for="SoNguoiToiDa"></label><input asp-for="SoNguoiToiDa" /><span asp-validation-for="SoNguoiToiDa"></span>
+<label asp-for="DonGiaThang"></label><input asp-for="DonGiaThang" /><span asp-validation-for="DonGiaThang"></span>
+<label asp-for="MoTa"></label><textarea asp-for="MoTa" rows="3"></textarea>
+<label asp-for="TrangThai"></label><select asp-for="TrangThai"><option value="@TT.HoatDong">@TT.HoatDong</option><option value="@TT.Ngung">@TT.Ngung</option></select><span asp-validation-for="TrangThai"></span>
+<div class="form-actions"><button type="submit">Lưu</button> <a class="btn btn-secondary" asp-action="Index">Quay lại</a></div></form>
+</div>
