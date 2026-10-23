@@ -1,0 +1,41 @@
+@*
+Họ và tên: Phạm Quang Nhật
+Mã sinh viên: 23203100085
+Nội dung thực hiện: Quản lý sinh viên, đăng ký ở KTX, xem thông tin/lịch sử ở
+*@
+@model SinhVien
+@{
+  var dkHienTai = Model.DangKys.FirstOrDefault(d => d.PhanPhongs.Any(p => p.TrangThai == TT.Dang));
+  var hienTai = dkHienTai?.PhanPhongs.FirstOrDefault(p => p.TrangThai == TT.Dang);
+}
+<div class="detail-hero">
+    <span class="head-kicker">Student portal</span>
+    <h2>Thông tin cá nhân</h2>
+    <div class="details-grid">
+        <div class="detail-item"><small>Sinh viên</small><strong>@Model.HoTen (@Model.MaSinhVien)</strong></div>
+        <div class="detail-item"><small>Lớp / Khoa</small><strong>@Model.Lop · @Model.Khoa</strong></div>
+        <div class="detail-item"><small>Liên hệ</small><strong>@Model.Email · @Model.SoDienThoai</strong></div>
+        <div class="detail-item"><small>Tài khoản</small><strong>@Model.TaiKhoan.TenDangNhap</strong></div>
+    </div>
+</div>
+<div class="section-header"><div class="head-copy"><span class="head-kicker">Current room</span><h3>Phòng hiện tại</h3></div></div>
+@if (hienTai == null) { <div class="panel"><p>Bạn chưa được phân phòng.</p></div> } else {
+<div class="panel">
+    <div class="details-grid">
+        <div class="detail-item"><small>Phòng</small><strong>@hienTai.Phong.TenPhong · @hienTai.Phong.LoaiPhong.TenLoaiPhong</strong></div>
+        <div class="detail-item"><small>Vị trí</small><strong>Tòa @hienTai.Phong.ToaNha · Tầng @hienTai.Phong.Tang</strong></div>
+        <div class="detail-item"><small>Ngày vào</small><strong>@hienTai.NgayVao.ToString("dd/MM/yyyy")</strong></div>
+        <div class="detail-item"><small>Kết thúc dự kiến</small><strong>@dkHienTai.NgayKetThucDuKien.ToString("dd/MM/yyyy")</strong></div>
+    </div>
+</div> }
+<div class="section-header section-spaced"><div class="head-copy"><span class="head-kicker">Applications</span><h3>Đăng ký của tôi</h3></div></div>
+<div class="table-panel"><div class="table-wrap"><table><tr><th>Ngày đăng ký</th><th>Bắt đầu</th><th>Kết thúc dự kiến</th><th>Trạng thái</th><th></th></tr>
+@foreach (var d in Model.DangKys.OrderByDescending(x => x.NgayDangKy)) {
+<tr><td>@d.NgayDangKy.ToString("dd/MM/yyyy")</td><td>@d.NgayBatDau.ToString("dd/MM/yyyy")</td><td>@d.NgayKetThucDuKien.ToString("dd/MM/yyyy")</td><td><span class="status-pill">@d.TrangThai</span></td>
+<td>@if (d.TrangThai == TT.Cho) { <form class="inline" method="post" asp-action="Huy" asp-route-id="@d.MaDangKy" data-confirm="Bạn có chắc muốn hủy đăng ký ở ký túc xá này?"><button class="btn2">Hủy</button></form> }</td></tr> }
+</table></div></div>
+<div class="section-header section-spaced"><div class="head-copy"><span class="head-kicker">History</span><h3>Lịch sử ở KTX</h3></div></div>
+<div class="table-panel"><div class="table-wrap"><table><tr><th>Phòng</th><th>Ngày vào</th><th>Ngày ra</th><th>Trạng thái</th></tr>
+@foreach (var p in Model.DangKys.SelectMany(d => d.PhanPhongs).OrderByDescending(x => x.NgayVao)) {
+<tr><td>@p.Phong.TenPhong</td><td>@p.NgayVao.ToString("dd/MM/yyyy")</td><td>@(p.NgayRa?.ToString("dd/MM/yyyy"))</td><td><span class="status-pill">@p.TrangThai</span></td></tr> }
+</table></div></div>
