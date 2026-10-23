@@ -1,0 +1,22 @@
+@*
+Họ và tên: Phạm Quang Nhật
+Mã sinh viên: 23203100085
+Nội dung thực hiện: Quản lý sinh viên, đăng ký ở KTX, xem thông tin/lịch sử ở
+*@
+@model SinhVien
+@{ bool moi = ViewBag.Moi == true; }
+<div class="page-header"><div class="head-copy"><span class="head-kicker">Members</span><h2>@(moi ? "Thêm" : "Sửa") sinh viên</h2></div></div>
+<div class="form-card">
+<p class="form-intro">Thông tin sinh viên được sử dụng cho hồ sơ và đăng ký nội trú.</p>
+<form method="post" class="f">
+<label asp-for="MaSinhVien"></label>
+@if (moi) { <input asp-for="MaSinhVien" /> } else { <input asp-for="MaSinhVien" readonly /> }<span asp-validation-for="MaSinhVien"></span>
+<label asp-for="HoTen"></label><input asp-for="HoTen" /><span asp-validation-for="HoTen"></span>
+<label asp-for="NgaySinh"></label><input asp-for="NgaySinh" type="date" value="@Model.NgaySinh.ToString("yyyy-MM-dd")" /><span asp-validation-for="NgaySinh"></span>
+<label>Giới tính</label><label><input type="radio" asp-for="GioiTinh" value="@TT.Nam" /> @TT.Nam</label><label><input type="radio" asp-for="GioiTinh" value="@TT.Nu" /> @TT.Nu</label><span asp-validation-for="GioiTinh"></span>
+<label asp-for="Lop"></label><input asp-for="Lop" /><label asp-for="Khoa"></label><input asp-for="Khoa" />
+<label asp-for="SoDienThoai"></label><input asp-for="SoDienThoai" /><span asp-validation-for="SoDienThoai"></span>
+<label asp-for="Email"></label><input asp-for="Email" /><span asp-validation-for="Email"></span>
+<label asp-for="DiaChi"></label><textarea asp-for="DiaChi" rows="2"></textarea>
+<div class="form-actions"><button type="submit">Lưu</button> <a class="btn btn-secondary" asp-action="Index">Quay lại</a></div></form>
+</div>

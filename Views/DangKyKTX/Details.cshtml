@@ -1,0 +1,27 @@
+@*
+Họ và tên: Phạm Quang Nhật
+Mã sinh viên: 23203100085
+Nội dung thực hiện: Quản lý sinh viên, đăng ký ở KTX, xem thông tin/lịch sử ở
+*@
+@model DangKyKTX
+<div class="detail-hero">
+    <span class="head-kicker">Application #@Model.MaDangKy</span>
+    <h2>Chi tiết đăng ký KTX</h2>
+    <div class="details-grid">
+        <div class="detail-item"><small>Sinh viên</small><strong><a asp-controller="SinhVien" asp-action="LichSu" asp-route-id="@Model.SinhVien.MaSinhVien">@Model.SinhVien.MaSinhVien - @Model.SinhVien.HoTen</a></strong></div>
+        <div class="detail-item"><small>Lớp / Khoa</small><strong>@Model.SinhVien.Lop · @Model.SinhVien.Khoa</strong></div>
+        <div class="detail-item"><small>Ngày đăng ký</small><strong>@Model.NgayDangKy.ToString("dd/MM/yyyy HH:mm")</strong></div>
+        <div class="detail-item"><small>Thời gian lưu trú</small><strong>@Model.NgayBatDau.ToString("dd/MM/yyyy") – @Model.NgayKetThucDuKien.ToString("dd/MM/yyyy")</strong></div>
+        <div class="detail-item"><small>Nguyện vọng</small><strong>@(Model.LoaiPhongNV?.TenLoaiPhong ?? "Không chọn")</strong></div>
+        <div class="detail-item"><small>Trạng thái</small><strong><span class="status-pill">@Model.TrangThai</span></strong></div>
+        <div class="detail-item"><small>Ghi chú</small><strong>@(string.IsNullOrWhiteSpace(Model.GhiChu) ? "(không có)" : Model.GhiChu)</strong></div>
+    </div>
+    @if (Model.TrangThai == TT.Cho) { <a class="btn" asp-controller="PhanPhong" asp-action="Assign" asp-route-id="@Model.MaDangKy">Phân phòng</a> }
+</div>
+<div class="section-header"><div class="head-copy"><span class="head-kicker">Room history</span><h3>Phân phòng của đăng ký này</h3></div></div>
+@if (Model.PhanPhongs.Count == 0) { <p><i>Chưa có bản ghi phân phòng.</i></p> } else {
+<div class="table-panel"><div class="table-wrap"><table><tr><th>Phòng</th><th>Ngày vào</th><th>Ngày ra</th><th>Trạng thái</th></tr>
+@foreach (var p in Model.PhanPhongs.OrderBy(x => x.NgayVao).ThenBy(x => x.MaPhanPhong)) {
+<tr><td>@p.Phong.TenPhong</td><td>@p.NgayVao.ToString("dd/MM/yyyy")</td><td>@(p.NgayRa?.ToString("dd/MM/yyyy"))</td><td><span class="status-pill">@p.TrangThai</span></td></tr> }
+</table></div></div> }
+<div class="form-actions"><a class="btn btn-secondary" asp-action="Index">Quay lại danh sách</a></div>
