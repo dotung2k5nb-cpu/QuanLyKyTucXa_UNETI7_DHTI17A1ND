@@ -1,0 +1,25 @@
+@*
+Họ và tên: Hoàng Tiến Nam
+Mã sinh viên: 23203100029
+Nội dung thực hiện: Quản lý phòng ký túc xá, tìm kiếm, lọc, sắp xếp và phân trang
+*@
+@model PhongKTX
+<div class="detail-hero">
+    <span class="head-kicker">Room profile</span>
+    <h2>Phòng @Model.TenPhong</h2>
+    <p>@Model.MoTa</p>
+    <div class="details-grid">
+        <div class="detail-item"><small>Loại phòng</small><strong>@Model.LoaiPhong.TenLoaiPhong</strong></div>
+        <div class="detail-item"><small>Sức chứa</small><strong>@Model.LoaiPhong.SoNguoiToiDa chỗ</strong></div>
+        <div class="detail-item"><small>Vị trí</small><strong>Tòa @Model.ToaNha · Tầng @Model.Tang</strong></div>
+        <div class="detail-item"><small>Đối tượng</small><strong>@Model.GioiTinhPhong</strong></div>
+        <div class="detail-item"><small>Trạng thái</small><strong><span class="status-pill">@Model.TrangThai</span></strong></div>
+    </div>
+</div>
+<div class="section-header"><div class="head-copy"><span class="head-kicker">Occupancy</span><h3>Sinh viên đang ở (@Model.PhanPhongs.Count/@Model.LoaiPhong.SoNguoiToiDa)</h3></div></div>
+<div class="table-panel"><div class="table-wrap">
+    <table><tr><th>Mã SV</th><th>Họ tên</th><th>Ngày vào</th></tr>
+    @foreach (var p in Model.PhanPhongs) { <tr><td>@p.DangKy.MaSinhVien</td><td>@p.DangKy.SinhVien.HoTen</td><td>@p.NgayVao.ToString("dd/MM/yyyy")</td></tr> }
+    </table>
+</div></div>
+<div class="form-actions"><a class="btn btn-secondary" asp-action="Index">Quay lại danh sách</a></div>
