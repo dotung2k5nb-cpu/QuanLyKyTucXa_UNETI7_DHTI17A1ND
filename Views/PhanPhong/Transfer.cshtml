@@ -1,0 +1,20 @@
+@*
+Họ và tên: Nguyễn Anh Tú
+Mã sinh viên: 23203100027
+Nội dung thực hiện: Phân phòng, chuyển phòng, trả phòng, Dashboard, thống kê
+*@
+@model PhanPhong
+<div class="page-header"><div class="head-copy"><span class="head-kicker">Room transfer</span><h2>Chuyển phòng</h2></div></div>
+<div class="detail-hero">
+    <div class="details-grid">
+        <div class="detail-item"><small>Sinh viên</small><strong>@Model.DangKy.SinhVien.HoTen</strong></div>
+        <div class="detail-item"><small>Phòng hiện tại</small><strong>@Model.Phong.TenPhong</strong></div>
+    </div>
+</div>
+@if (ViewBag.Loi != null) { <div class="err">@ViewBag.Loi</div> }
+@if (((List<PhongRow>)ViewBag.Phongs).Count == 0) { <p><i>Hiện không có phòng nào phù hợp (đúng giới tính, đang sử dụng, còn chỗ và khác phòng hiện tại).</i></p><a class="btn btn-secondary" asp-action="Index">Quay lại</a> } else {
+<form method="post" data-confirm="Chuyển phòng của sinh viên sang lựa chọn đã chọn?">
+<div class="table-panel"><div class="table-wrap"><table><tr><th></th><th>Phòng</th><th>Loại</th><th>Tòa</th><th>Tầng</th><th>Còn chỗ</th></tr>
+@foreach (PhongRow r in ViewBag.Phongs) {
+<tr><td><input type="radio" name="maPhongMoi" value="@r.P.MaPhong" required /></td><td>@r.P.TenPhong</td><td>@r.TenLoai</td><td>@r.P.ToaNha</td><td>@r.P.Tang</td><td>@r.ConCho</td></tr> }
+</table></div></div><div class="form-actions"><button type="submit">Xác nhận chuyển</button> <a class="btn btn-secondary" asp-action="Index">Quay lại</a></div></form> }

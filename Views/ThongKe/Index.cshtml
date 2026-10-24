@@ -1,0 +1,66 @@
+@*
+Họ và tên: Nguyễn Anh Tú
+Mã sinh viên: 23203100027
+Nội dung thực hiện: Phân phòng, chuyển phòng, trả phòng, Dashboard, thống kê
+*@
+@model List<PhongRow>
+@{ Func<string, object, string> c = (t, v) => $"<div class='summary-card'><div class='summary-icon'>📊</div><div class='summary-label'>{t}</div><div class='summary-value'>{v}</div></div>"; }
+<div class="page-header">
+    <div class="head-copy">
+        <span class="head-kicker">Overview</span>
+        <h2>Dashboard</h2>
+    </div>
+</div>
+<div class="summary-grid">
+    @Html.Raw(c("Tổng số phòng", ViewBag.TongPhong))
+    @Html.Raw(c("Tổng sinh viên", ViewBag.TongSV))
+    @Html.Raw(c("Tổng đăng ký", ViewBag.TongDK))
+    @Html.Raw(c("Chờ duyệt", ViewBag.ChoDuyet))
+    @Html.Raw(c("SV đang ở KTX", ViewBag.SVDangO))
+    @Html.Raw(c("Tổng số chỗ", ViewBag.TongCho))
+    @Html.Raw(c("Chỗ đang dùng", ViewBag.Dung))
+    @Html.Raw(c("Chỗ còn trống", ViewBag.Con))
+    @Html.Raw(c("Phòng đã đủ người", ViewBag.PhongDay))
+    @Html.Raw(c("Tỷ lệ sử dụng", ViewBag.TyLe + "%"))
+</div>
+
+@if (ViewBag.NhieuNhat != null)
+{
+    <div class="panel" style="margin-bottom: 22px;">
+        <h3>Phòng có mật độ cao nhất</h3>
+        <p>Phòng <strong>@(((PhongRow)ViewBag.NhieuNhat).P.TenPhong)</strong> đang có <strong>@(((PhongRow)ViewBag.NhieuNhat).DangO)</strong> sinh viên ở, là phòng có số lượng sinh viên cao nhất hiện tại.</p>
+    </div>
+}
+
+<div class="panel-grid" style="margin-bottom: 22px;">
+@foreach (var nhom in new (string, IEnumerable<KV>)[] { ("Số phòng theo loại", (IEnumerable<KV>)ViewBag.PhongTheoLoai), ("SV theo tòa", (IEnumerable<KV>)ViewBag.SvTheoToa), ("SV theo loại phòng", (IEnumerable<KV>)ViewBag.SvTheoLoai), ("Đăng ký theo trạng thái", (IEnumerable<KV>)ViewBag.DkTheoTT), ("SV vào KTX theo tháng", (IEnumerable<KV>)ViewBag.TheoThang) }) {
+    <div class="panel">
+        <h4>@nhom.Item1</h4>
+        <div class="chart-list">
+            @foreach (var k in nhom.Item2) {
+                <div class="chart-row">
+                    <span>@k.K</span>
+                    <div class="chart-track"><div class="chart-fill" style="width:@(Math.Min(100, (double)k.V * 10))%"></div></div>
+                    <strong>@k.V</strong>
+                </div>
+            }
+        </div>
+    </div>
+}
+</div>
+
+<div class="section-header">
+    <div class="head-copy">
+        <span class="head-kicker">Capacity</span>
+        <h3>Số sinh viên đang ở và chỗ còn lại từng phòng</h3>
+    </div>
+</div>
+<p><small>Phòng Tạm ngừng không tính vào tổng số chỗ nên cột "Còn lại" hiển thị "-".</small></p>
+<div class="table-panel">
+    <div class="table-wrap">
+        <table>
+            <tr><th>Phòng</th><th>Loại</th><th>Trạng thái</th><th>Đang ở</th><th>Sức chứa</th><th>Còn lại</th></tr>
+            @foreach (var r in Model) { <tr><td>@r.P.TenPhong</td><td>@r.TenLoai</td><td><span class="status-pill">@r.P.TrangThai</span></td><td>@r.DangO</td><td>@r.SucChua</td><td>@(r.P.TrangThai == TT.PhongDung ? r.ConCho.ToString() : "-")</td></tr> }
+        </table>
+    </div>
+</div>

@@ -1,0 +1,66 @@
+@*
+Họ và tên: Nguyễn Anh Tú
+Mã sinh viên: 23203100027
+Nội dung thực hiện: Phân phòng, chuyển phòng, trả phòng, Dashboard, thống kê
+*@
+@model LichSuVM
+<div class="page-header">
+    <div class="head-copy">
+        <span class="head-kicker">Assignment</span>
+        <h2>Phân phòng</h2>
+    </div>
+</div>
+
+<div class="section-header">
+    <div class="head-copy">
+        <span class="head-kicker">Pending</span>
+        <h3>Đăng ký chờ duyệt (@ViewBag.ChoTong)</h3>
+    </div>
+</div>
+<div class="table-panel">
+    <div class="table-wrap">
+        <table>
+            <tr><th>Mã</th><th>Sinh viên</th><th>Giới tính</th><th>Ngày đăng ký</th><th>Hành động</th></tr>
+            @foreach (DangKyKTX d in ViewBag.Cho) {
+            <tr><td>@d.MaDangKy</td><td>@d.SinhVien.MaSinhVien - @d.SinhVien.HoTen</td><td>@d.SinhVien.GioiTinh</td><td>@d.NgayDangKy.ToString("dd/MM/yyyy")</td><td><a class="btn btn-secondary" asp-action="Assign" asp-route-id="@d.MaDangKy">Phân phòng</a></td></tr> }
+        </table>
+    </div>
+</div>
+@if ((int)ViewBag.ChoTong > 10) { <p><a asp-controller="DangKyKTX" asp-action="Index" asp-route-tt="@TT.Cho">Xem tất cả @ViewBag.ChoTong đăng ký chờ duyệt</a></p> }
+
+<div class="section-header" style="margin-top: 24px;">
+    <div class="head-copy">
+        <span class="head-kicker">History</span>
+        <h3>Lịch sử phân phòng</h3>
+    </div>
+</div>
+<div class="filter-panel">
+    <div class="filter-heading">
+        <strong>Lọc lịch sử phân phòng</strong>
+        <span>Các điều kiện được áp dụng đồng thời; tìm theo mã sinh viên, họ tên, phòng hoặc trạng thái.</span>
+    </div>
+    <form method="get" class="filter-form">
+        <label class="filter-field"><span>Mã sinh viên</span><input name="maSv" value="@Model.MaSinhVien" placeholder="Ví dụ: SV12346" /></label>
+        <label class="filter-field"><span>Họ và tên</span><input name="hoTen" value="@Model.HoTen" placeholder="Nhập một phần họ tên" /></label>
+        <label class="filter-field"><span>Tên phòng</span><input name="tenPhong" value="@Model.TenPhong" placeholder="Ví dụ: P01" /></label>
+        <label class="filter-field"><span>Trạng thái lưu trú</span>
+            <select name="tt"><option value="">Tất cả trạng thái</option>
+            @foreach (var t in new[] { TT.Dang, TT.DaChuyen, TT.DaTra }) { <option value="@t" selected="@(Model.Tt == t)">@t</option> }
+            </select>
+        </label>
+        <div class="filter-actions"><button type="submit">Lọc lịch sử</button><a class="btn btn-secondary" asp-action="Index">Đặt lại</a></div>
+    </form>
+</div>
+<p>Kết quả: <b>@Model.Pager.Total</b> bản ghi phân phòng.</p>
+@if (Model.Items.Count == 0) { <p><i>Không có bản ghi phù hợp điều kiện tìm kiếm.</i></p> } else {
+<div class="table-panel">
+    <div class="table-wrap">
+        <table>
+            <tr><th>Sinh viên</th><th>Phòng</th><th>Ngày vào</th><th>Ngày ra</th><th>Trạng thái</th><th>Hành động</th></tr>
+            @foreach (PhanPhong p in Model.Items) {
+            <tr><td><a asp-controller="SinhVien" asp-action="LichSu" asp-route-id="@p.DangKy.SinhVien.MaSinhVien">@p.DangKy.SinhVien.MaSinhVien</a> - @p.DangKy.SinhVien.HoTen</td><td>@p.Phong.TenPhong</td><td>@p.NgayVao.ToString("dd/MM/yyyy")</td><td>@(p.NgayRa?.ToString("dd/MM/yyyy"))</td><td><span class="status-pill">@p.TrangThai</span></td>
+            <td>@if (p.TrangThai == TT.Dang) { <div class="actions-cell"><a class="btn btn-secondary" asp-action="Transfer" asp-route-id="@p.MaPhanPhong">Chuyển phòng</a><form class="inline" method="post" asp-action="Return" asp-route-id="@p.MaPhanPhong" data-confirm="Xác nhận trả phòng cho sinh viên này?"><button class="btn2">Trả phòng</button></form></div> }</td></tr> }
+        </table>
+    </div>
+</div> }
+<partial name="_Pager" model="Model.Pager" />
