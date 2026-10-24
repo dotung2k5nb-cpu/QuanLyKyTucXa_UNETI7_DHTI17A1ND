@@ -1,0 +1,41 @@
+@*
+Họ và tên: Nguyễn Anh Tú
+Mã sinh viên: 23203100027
+Nội dung thực hiện: Phân phòng, chuyển phòng, trả phòng, Dashboard, thống kê
+*@
+@model DangKyKTX
+@{
+  var phongs = (List<PhongRow>)ViewBag.Phongs;
+  bool khoa = Model.SinhVien.TrangThai != TT.HoatDong;
+  int? nv = Model.NguyenVongLoaiPhong;
+}
+<div class="page-header"><div class="head-copy"><span class="head-kicker">Room assignment</span><h2>Phân phòng cho @Model.SinhVien.HoTen</h2></div></div>
+@if (ViewBag.Loi != null) { <div class="err">@ViewBag.Loi</div> }
+<div class="section-header"><div class="head-copy"><span class="head-kicker">Application #@Model.MaDangKy</span><h3>Thông tin đăng ký</h3></div></div>
+<div class="table-panel"><div class="table-wrap"><table>
+<tr><th>Sinh viên</th><td>@Model.SinhVien.MaSinhVien - @Model.SinhVien.HoTen (@Model.SinhVien.GioiTinh, lớp @Model.SinhVien.Lop, @Model.SinhVien.Khoa)</td></tr>
+<tr><th>Ngày đăng ký</th><td>@Model.NgayDangKy.ToString("dd/MM/yyyy HH:mm")</td></tr>
+<tr><th>Ngày bắt đầu ở</th><td>@Model.NgayBatDau.ToString("dd/MM/yyyy")</td></tr>
+<tr><th>Ngày kết thúc dự kiến</th><td>@Model.NgayKetThucDuKien.ToString("dd/MM/yyyy")</td></tr>
+<tr><th>Nguyện vọng loại phòng</th><td>@(Model.LoaiPhongNV?.TenLoaiPhong ?? "Không chọn") <small>(chỉ để tham khảo)</small></td></tr>
+<tr><th>Ghi chú</th><td>@(string.IsNullOrWhiteSpace(Model.GhiChu) ? "(không có)" : Model.GhiChu)</td></tr>
+</table></div></div>
+<div class="section-header section-spaced"><div class="head-copy"><span class="head-kicker">Available rooms</span><h3>Chọn phòng</h3></div></div>
+<div class="form-card">
+<label for="ngayVao">Ngày vào ở</label><input id="ngayVao" type="date" name="ngayVao" form="fAssign" value="@ViewBag.NgayVao" min="@DateTime.Today.ToString("yyyy-MM-dd")" max="@Model.NgayKetThucDuKien.ToString("yyyy-MM-dd")" required />
+<p><small>Chỉ hiển thị phòng đang sử dụng, đúng giới tính @Model.SinhVien.GioiTinh và còn chỗ. Phòng đúng loại nguyện vọng được xếp lên đầu và đánh dấu.</small></p>
+@if (phongs.Count == 0) {
+<p><i>Hiện không có phòng nào phù hợp (đúng giới tính, đang sử dụng và còn chỗ).</i></p>
+<p><a class="btn btn-secondary" asp-action="Index">Quay lại</a></p>
+}
+else {
+<form method="post" id="fAssign" data-confirm="Phân phòng cho sinh viên này theo lựa chọn đã chọn?">
+<input type="hidden" name="maDangKy" value="@Model.MaDangKy" />
+<div class="table-panel"><div class="table-wrap"><table><tr><th></th><th>Phòng</th><th>Loại</th><th>Tòa</th><th>Tầng</th><th>Giới tính</th><th>Sức chứa</th><th>Còn chỗ</th><th>Theo nguyện vọng</th></tr>
+@foreach (PhongRow r in phongs) {
+<tr><td><input type="radio" name="maPhong" value="@r.P.MaPhong" required /></td><td>@r.P.TenPhong</td><td>@r.TenLoai</td><td>@r.P.ToaNha</td><td>@r.P.Tang</td><td>@r.P.GioiTinhPhong</td><td>@r.SucChua</td><td>@r.ConCho</td><td>@(nv != null && r.P.MaLoaiPhong == nv ? "✔ Có" : "")</td></tr> }
+</table></div></div>
+@if (!khoa) { <button>Xác nhận phân phòng</button> }
+<a class="btn btn-secondary" asp-action="Index">Quay lại</a></form>
+}
+</div>
