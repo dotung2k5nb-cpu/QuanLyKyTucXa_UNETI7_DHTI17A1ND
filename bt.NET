@@ -1,0 +1,531 @@
+BÀI TẬP LỚN MÔN THỰC HÀNH LẬP TRÌNH .NET
+ĐỀ TÀI 11: XÂY DỰNG HỆ THỐNG QUẢN LÝ KÝ TÚC XÁ
+VÀ PHÂN PHÒNG SINH VIÊN
+1. MỤC TIÊU
+Xây dựng ứng dụng Web Hệ thống quản lý ký túc xá và phân phòng sinh viên bằng ASP.NET Core 10 MVC.
+Hệ thống phục vụ hai nhóm người dùng chính:
+    • Admin: quản lý loại phòng, phòng ký túc xá, sinh viên, đăng ký ở ký túc xá; thực hiện phân phòng, chuyển phòng, trả phòng; Dashboard và thống kê.
+    • Sinh viên: đăng nhập, xem danh sách phòng còn khả năng tiếp nhận, đăng ký ở ký túc xá, xem thông tin phòng đang ở và lịch sử đăng ký.
+Sinh viên vận dụng tổng hợp các kiến thức:
+    • C#.
+    • ASP.NET Core 10 MVC.
+    • Model - View - Controller.
+    • Entity Framework Core 10.
+    • Code First và Migration.
+    • CRUD.
+    • Data Annotation và Validation.
+    • Razor View.
+    • LINQ.
+    • Tìm kiếm, lọc, sắp xếp.
+    • Phân trang.
+    • Session.
+    • Đăng nhập và phân quyền.
+    • Xử lý nghiệp vụ.
+    • Dashboard và thống kê.
+    • Git/GitHub.
+2. CÔNG NGHỆ SỬ DỤNG
+2.1. Công nghệ bắt buộc
+    • .NET 10 SDK.
+    • ASP.NET Core 10 MVC.
+    • C#.
+    • Entity Framework Core 10.
+    • SQL Server.
+    • LINQ.
+    • Razor View.
+    • HTML/CSS.
+    • JavaScript ở mức cần thiết.
+    • Visual Studio hoặc Visual Studio Code.
+    • Git/GitHub.
+2.2. Quy định về phiên bản
+Project bắt buộc được tạo và phát triển trên .NET 10. Các package Entity Framework Core phải sử dụng Entity Framework Core 10 và tương thích với .NET 10.
+Không chấp nhận ASP.NET MVC trên .NET Framework, ASP.NET Core phiên bản thấp hơn hoặc Project cũ chỉ đổi tên Model/giao diện. Sinh viên phải hiểu, giải thích và chỉnh sửa được mã nguồn khi bảo vệ.
+3. QUY MÔ VÀ TỔ CHỨC NHÓM
+Mỗi nhóm gồm 04 sinh viên.
+    • 01 Project ASP.NET Core 10 MVC.
+    • 01 cơ sở dữ liệu SQL Server.
+    • 01 Repository GitHub chung.
+Mỗi sinh viên chịu trách nhiệm chính về 01 Module, đồng thời phải hiểu cấu trúc chung và nguyên lý hoạt động của toàn bộ Project.
+3.1. Quy định đặt tên Project
+Tên Project được đặt theo cấu trúc:
+[TênĐềTài]_UNETI[STTNhóm]_[MãLớp]
+Ví dụ Nhóm 11, lớp TI17A1HN:
+QuanLyKyTucXa_UNETI11_TI17A1HN
+Trong đó UNETI11 là số thứ tự Nhóm 11, không phải số lượng sinh viên. Tên Project, Solution và Namespace phải thống nhất.
+4. PHÂN CHIA CHỨC NĂNG
+4.1. Sinh viên 1 - Module 1
+Tài khoản - Đăng nhập - Phân quyền - Quản lý loại phòng
+4.2. Sinh viên 2 - Module 2
+Quản lý phòng ký túc xá - Tìm kiếm - Lọc - Sắp xếp - Phân trang
+4.3. Sinh viên 3 - Module 3
+Quản lý sinh viên - Đăng ký ở ký túc xá - Xem thông tin/lịch sử ở
+4.4. Sinh viên 4 - Module 4
+Quản lý đăng ký - Phân phòng - Chuyển phòng - Trả phòng - Dashboard - Thống kê
+5. MODULE 1 - TÀI KHOẢN, ĐĂNG NHẬP, PHÂN QUYỀN VÀ LOẠI PHÒNG
+5.1. Quản lý tài khoản
+Entity TaiKhoan gồm tối thiểu:
+    • MaTaiKhoan.
+    • TenDangNhap.
+    • MatKhau.
+    • HoTen.
+    • Email.
+    • VaiTro.
+    • TrangThai.
+Hệ thống có hai vai trò: Admin và Sinh viên. Tên đăng nhập bắt buộc và không được trùng; mật khẩu bắt buộc; Email đúng định dạng; tài khoản bị khóa không được đăng nhập.
+5.2. Đăng nhập - đăng xuất
+Kiểm tra tài khoản bằng Entity Framework Core và LINQ. Khi đăng nhập thành công lưu tối thiểu vào Session:
+    • Mã tài khoản.
+    • Họ tên.
+    • Vai trò.
+Đăng xuất phải xóa Session và không cho phép tiếp tục truy cập chức năng yêu cầu đăng nhập bằng Session cũ.
+5.3. Phân quyền
+Admin được sử dụng toàn bộ chức năng quản trị. Sinh viên chỉ được xem phòng, đăng ký ở KTX và xem dữ liệu của chính mình.
+Phân quyền bắt buộc kiểm tra tại Controller, không chỉ ẩn menu hoặc nút trên View.
+5.4. Quản lý loại phòng
+Entity LoaiPhong gồm:
+    • MaLoaiPhong.
+    • TenLoaiPhong.
+    • SoNguoiToiDa.
+    • DonGiaThang.
+    • MoTa.
+    • TrangThai.
+Admin thực hiện CRUD. Tên loại phòng bắt buộc và không trùng; SoNguoiToiDa > 0; DonGiaThang > 0; không xóa loại phòng nếu làm dữ liệu phòng liên quan không hợp lệ.
+5.5. Yêu cầu kiểm soát tài khoản và dữ liệu người dùng
+Việc đăng nhập và phân quyền được xây dựng ở mức đơn giản, phù hợp phạm vi môn học nhưng phải thể hiện đúng bản chất kiểm soát truy cập của một ứng dụng Web.
+    • Không lưu vai trò do người dùng tự gửi từ View để quyết định quyền truy cập; vai trò phải lấy từ thông tin tài khoản đã đăng nhập.
+    • Khi sinh viên truy cập chức năng cá nhân, MaSinhVien phải được xác định từ tài khoản/Session; không cho phép đổi mã trên URL để xem hoặc sửa dữ liệu của sinh viên khác.
+    • Các thao tác thêm, sửa, xóa loại phòng chỉ dành cho Admin và phải kiểm tra quyền trước khi truy cập dữ liệu.
+    • Khi khóa tài khoản sinh viên, dữ liệu lịch sử đăng ký và phân phòng vẫn phải được giữ lại.
+5.6. Yêu cầu hiển thị và kiểm thử Module 1
+    • Trang đăng nhập phải có Validation Message và thông báo rõ khi sai tài khoản, sai mật khẩu hoặc tài khoản bị khóa.
+    • Menu sau đăng nhập thay đổi phù hợp theo vai trò Admin/Sinh viên.
+    • Kiểm thử truy cập trực tiếp URL quản trị bằng tài khoản Sinh viên để chứng minh phân quyền không chỉ thực hiện trên giao diện.
+6. MODULE 2 - QUẢN LÝ PHÒNG KÝ TÚC XÁ
+6.1. Quản lý phòng
+Entity PhongKTX gồm tối thiểu:
+    • MaPhong.
+    • TenPhong.
+    • MaLoaiPhong.
+    • ToaNha.
+    • Tang.
+    • GioiTinhPhong.
+    • TrangThai.
+    • MoTa.
+Trạng thái phòng gồm Đang sử dụng và Tạm ngừng. Không cho sinh viên nhập trực tiếp số chỗ còn. Số chỗ còn phải được tính từ sức chứa loại phòng và số sinh viên đang thực tế ở phòng.
+6.2. CRUD và Validation
+    • Admin thực hiện danh sách, chi tiết, thêm, sửa, xóa và cập nhật trạng thái.
+    • Loại phòng dùng select lấy từ Database.
+    • Tên phòng bắt buộc và không trùng.
+    • Tầng hợp lệ.
+    • Mô tả dùng textarea.
+    • Khi hiển thị phải hiện tên loại phòng thay cho chỉ mã khóa ngoại.
+6.3. Tìm kiếm
+    • Tên phòng.
+    • Tòa nhà.
+6.4. Lọc
+    • Loại phòng.
+    • Tòa nhà.
+    • Tầng.
+    • Giới tính phòng.
+    • Trạng thái.
+    • Còn chỗ/Hết chỗ.
+6.5. Sắp xếp
+    • Tên phòng A -> Z.
+    • Tên phòng Z -> A.
+    • Tầng tăng/giảm.
+    • Số chỗ còn tăng/giảm.
+6.6. Phân trang
+Danh sách phòng bắt buộc phân trang. Khi chuyển trang phải giữ nguyên các điều kiện tìm kiếm, lọc và sắp xếp.
+Truy vấn -> Tìm kiếm -> Lọc -> Sắp xếp -> Phân trang -> Hiển thị
+Phân trang thực hiện trên truy vấn EF Core/LINQ, có thể dùng Skip() và Take() hoặc cách tương đương; không tải toàn bộ dữ liệu rồi giả lập phân trang trên trình duyệt.
+6.7. Tính sức chứa và số chỗ còn
+Sức chứa của phòng được lấy từ SoNguoiToiDa của LoaiPhong. Số sinh viên đang ở phải được tính từ các bản ghi PhanPhong có TrangThai = Đang ở. Không tạo ô nhập SoChoCon để Admin tự sửa.
+SoChoCon = SoNguoiToiDa - SoSinhVienDangO
+    • Nếu SoChoCon > 0: phòng còn khả năng tiếp nhận.
+    • Nếu SoChoCon = 0: phòng đã đầy và không được phân thêm sinh viên.
+    • Nếu kết quả tính < 0: dữ liệu có lỗi nghiệp vụ và nhóm phải kiểm tra lại quá trình phân phòng.
+6.8. Yêu cầu kết hợp truy vấn danh sách phòng
+Các chức năng tìm kiếm, lọc, sắp xếp và phân trang không được viết thành các danh sách tách rời. Người dùng phải có thể nhập từ khóa, chọn nhiều điều kiện lọc, chọn kiểu sắp xếp rồi chuyển trang mà vẫn giữ nguyên trạng thái truy vấn.
+    • Tìm tên phòng kết hợp lọc theo tòa nhà và loại phòng.
+    • Lọc Còn chỗ phải dựa trên số sinh viên Đang ở, không dựa trên một trường dữ liệu nhập tay.
+    • Sắp xếp theo số chỗ còn phải dựa trên giá trị tính toán từ dữ liệu thực tế.
+    • Khi không có kết quả phải hiển thị thông báo phù hợp, không phát sinh lỗi.
+7. MODULE 3 - QUẢN LÝ SINH VIÊN VÀ ĐĂNG KÝ Ở KÝ TÚC XÁ
+7.1. Quản lý sinh viên
+Entity SinhVien gồm:
+    • MaSinhVien.
+    • MaTaiKhoan.
+    • HoTen.
+    • NgaySinh.
+    • GioiTinh.
+    • Lop.
+    • Khoa.
+    • SoDienThoai.
+    • Email.
+    • DiaChi.
+    • TrangThai.
+Mã sinh viên bắt buộc và không trùng; họ tên bắt buộc; ngày sinh hợp lệ; Email đúng định dạng; số điện thoại hợp lệ.
+7.2. Đăng ký KTX
+Entity DangKyKTX gồm:
+    • MaDangKy.
+    • MaSinhVien.
+    • NgayDangKy.
+    • NgayBatDau.
+    • NgayKetThucDuKien.
+    • NguyenVongLoaiPhong.
+    • GhiChu.
+    • TrangThai.
+Trạng thái: Chờ duyệt -> Đã phân phòng -> Đã trả phòng; có thêm trạng thái Đã hủy.
+7.3. Nghiệp vụ đăng ký
+Sinh viên phải đăng nhập trước khi gửi đăng ký. Hệ thống phải kiểm tra:
+    • Sinh viên tồn tại và đang hoạt động.
+    • Ngày bắt đầu hợp lệ.
+    • Ngày kết thúc dự kiến sau ngày bắt đầu.
+    • Sinh viên không có đăng ký khác đang ở trạng thái Đã phân phòng.
+    • Không tạo nhiều đăng ký Chờ duyệt đồng thời.
+    • NgayDangKy do hệ thống xác định.
+7.4. Xem thông tin và lịch sử
+    • Đăng ký đang chờ duyệt.
+    • Phòng hiện tại.
+    • Loại phòng.
+    • Tòa nhà.
+    • Tầng.
+    • Ngày bắt đầu ở.
+    • Ngày dự kiến kết thúc.
+    • Lịch sử ở KTX.
+Sinh viên chỉ được xem dữ liệu của chính mình.
+7.5. Quy tắc quản lý đăng ký KTX
+Một đăng ký là yêu cầu xin ở KTX, chưa đồng nghĩa sinh viên đã được xếp phòng. Vì vậy phải tách rõ DangKyKTX và PhanPhong để tránh sửa trực tiếp thông tin phòng trên hồ sơ sinh viên.
+    • Sinh viên chỉ được hủy đăng ký khi đăng ký còn ở trạng thái Chờ duyệt.
+    • Đăng ký đã được phân phòng không được xóa để bảo đảm lịch sử.
+    • Nguyện vọng loại phòng chỉ là thông tin tham khảo; khi phân phòng Admin vẫn phải kiểm tra phòng thực tế còn chỗ và phù hợp.
+    • Nếu đăng ký bị hủy, không được tạo bản ghi PhanPhong từ đăng ký đó.
+7.6. Tra cứu dữ liệu cá nhân
+Trang cá nhân của sinh viên phải tổng hợp được thông tin tài khoản, hồ sơ sinh viên, đăng ký hiện tại và phòng đang ở. Các truy vấn phải ràng buộc theo tài khoản đăng nhập để tránh xem chéo dữ liệu.
+8. MODULE 4 - PHÂN PHÒNG, CHUYỂN PHÒNG, TRẢ PHÒNG VÀ THỐNG KÊ
+8.1. Entity PhanPhong
+Để lưu lịch sử ở thực tế, sử dụng Entity PhanPhong:
+    • MaPhanPhong.
+    • MaDangKy.
+    • MaPhong.
+    • NgayVao.
+    • NgayRa.
+    • TrangThai.
+Trạng thái gồm Đang ở, Đã chuyển, Đã trả phòng.
+8.2. Phân phòng
+Khi Admin phân phòng, hệ thống phải kiểm tra:
+    • Đăng ký đang Chờ duyệt.
+    • Phòng tồn tại và đang hoạt động.
+    • Giới tính sinh viên phù hợp với quy định của phòng.
+    • Phòng còn chỗ.
+    • Sinh viên chưa ở phòng khác.
+Số người đang ở được xác định bằng LINQ từ các bản ghi PhanPhong có trạng thái Đang ở.
+Số người đang ở < Số người tối đa của loại phòng
+Nếu phòng đã đủ người, hệ thống không được phép phân thêm sinh viên.
+8.3. Chuyển phòng
+    • Sinh viên phải đang có phòng.
+    • Phòng mới tồn tại, đang hoạt động và khác phòng hiện tại.
+    • Phòng mới còn chỗ.
+    • Giới tính phù hợp.
+Sau khi chuyển: bản ghi cũ chuyển thành Đã chuyển và ghi NgayRa; tạo bản ghi PhanPhong mới ở trạng thái Đang ở. Không sửa trực tiếp MaPhong của bản ghi cũ làm mất lịch sử.
+8.4. Trả phòng
+Khi sinh viên trả phòng: phải đang ở; ghi NgayRa; PhanPhong chuyển Đã trả phòng; DangKyKTX chuyển Đã trả phòng. Chỗ của sinh viên sau đó trở thành chỗ trống.
+8.5. Dashboard
+    • Tổng số phòng.
+    • Tổng số sinh viên.
+    • Tổng số đăng ký.
+    • Số đăng ký chờ duyệt.
+    • Số sinh viên đang ở KTX.
+    • Tổng số chỗ.
+    • Tổng số chỗ đang sử dụng.
+    • Tổng số chỗ còn trống.
+    • Số phòng đã đủ người.
+8.6. Thống kê bằng LINQ
+    • Số phòng theo từng loại.
+    • Số sinh viên đang ở từng phòng.
+    • Số chỗ còn lại của từng phòng.
+    • Số sinh viên theo từng tòa.
+    • Số sinh viên theo loại phòng.
+    • Số đăng ký theo trạng thái.
+    • Phòng có số sinh viên đang ở nhiều nhất.
+    • Tỷ lệ sử dụng phòng.
+    • Số sinh viên vào KTX theo tháng.
+Sử dụng phù hợp Count(), Sum(), GroupBy(), OrderBy(), OrderByDescending().
+8.7. Duyệt đăng ký và lựa chọn phòng
+Admin xem danh sách đăng ký Chờ duyệt và lựa chọn phòng phù hợp. Danh sách phòng có thể lựa chọn phải loại bỏ phòng Tạm ngừng và các phòng đã đủ sức chứa.
+    • Ưu tiên hiển thị tên phòng, loại phòng, tòa nhà, tầng, giới tính phòng, sức chứa và số chỗ còn để Admin quyết định.
+    • Trước khi SaveChanges phải kiểm tra lại số chỗ còn để hạn chế trường hợp dữ liệu đã thay đổi giữa lúc mở View và lúc xác nhận.
+    • Sau khi phân phòng thành công, DangKyKTX chuyển sang Đã phân phòng và tạo PhanPhong ở trạng thái Đang ở.
+8.8. Bảo toàn lịch sử phân phòng
+Lịch sử là yêu cầu bắt buộc của đề. Chuyển phòng và trả phòng phải cập nhật trạng thái bản ghi cũ thay vì xóa. Nhờ đó hệ thống có thể truy vấn sinh viên đã từng ở phòng nào, thời gian nào và chuyển phòng bao nhiêu lần.
+    • Không Delete bản ghi PhanPhong đã phát sinh nghiệp vụ.
+    • NgayVao bắt buộc khi tạo phân phòng; NgayRa để trống khi đang ở và được cập nhật khi chuyển/trả phòng.
+    • Tại một thời điểm, mỗi sinh viên chỉ có tối đa một PhanPhong ở trạng thái Đang ở.
+8.9. Yêu cầu thống kê có ý nghĩa nghiệp vụ
+Các số liệu Dashboard và thống kê phải lấy trực tiếp từ Database bằng LINQ tại thời điểm truy vấn, không nhập số liệu thống kê thủ công hoặc lưu các tổng số cố định.
+    • Tổng số chỗ = tổng SoNguoiToiDa của các phòng đang hoạt động.
+    • Số chỗ đang sử dụng = số PhanPhong có trạng thái Đang ở.
+    • Số chỗ còn = Tổng số chỗ - Số chỗ đang sử dụng.
+    • Tỷ lệ sử dụng = Số chỗ đang sử dụng / Tổng số chỗ x 100%, xử lý trường hợp tổng số chỗ bằng 0.
+9. THIẾT KẾ CƠ SỞ DỮ LIỆU
+Các Entity chính tối thiểu gồm:
+    • TaiKhoan.
+    • LoaiPhong.
+    • PhongKTX.
+    • SinhVien.
+    • DangKyKTX.
+    • PhanPhong.
+Quan hệ chính:
+    • TaiKhoan (1) - (1) SinhVien.
+    • LoaiPhong (1) - (n) PhongKTX.
+    • SinhVien (1) - (n) DangKyKTX.
+    • DangKyKTX (1) - (n) PhanPhong.
+    • PhongKTX (1) - (n) PhanPhong.
+Sinh viên phải xác định Primary Key, Foreign Key, Navigation Property, kiểu dữ liệu, Required/Nullable, độ dài chuỗi, Validation và các ràng buộc nghiệp vụ.
+9.1. Yêu cầu ràng buộc dữ liệu
+    • Thiết lập khóa ngoại và Navigation Property phù hợp để có thể Include dữ liệu liên quan khi hiển thị.
+    • Các trường ngày kết thúc/ngày ra có thể Nullable khi nghiệp vụ chưa kết thúc.
+    • Các trường trạng thái phải sử dụng tập giá trị thống nhất trong toàn Project, tránh mỗi Controller dùng một chuỗi khác nhau.
+    • Thiết kế phải hỗ trợ lưu lịch sử; không đặt MaPhong trực tiếp trong SinhVien để thay thế quan hệ phân phòng.
+9.2. Dữ liệu và tính nhất quán
+Khi xóa hoặc thay đổi dữ liệu danh mục, nhóm phải xem xét dữ liệu liên quan. Không để thao tác xóa LoaiPhong, PhongKTX hoặc SinhVien làm mất lịch sử DangKyKTX/PhanPhong đã phát sinh.
+10. ENTITY FRAMEWORK CORE VÀ MIGRATION
+Cơ sở dữ liệu bắt buộc xây dựng bằng Entity Framework Core 10 theo phương pháp Code First.
+Entity -> DbContext -> Migration -> SQL Server
+    1. Xây dựng Entity.
+    2. Xây dựng DbContext và DbSet.
+    3. Cấu hình Connection String.
+    4. Tạo Migration.
+    5. Cập nhật Database.
+    6. Truy xuất dữ liệu bằng Entity Framework Core và LINQ.
+Không sử dụng câu lệnh SQL viết trực tiếp để thay thế các chức năng CRUD bắt buộc.
+10.1. Yêu cầu Migration trong quá trình làm nhóm
+    • Migration phải được lưu trong Repository GitHub cùng Source Code.
+    • Các thành viên thống nhất Entity trước khi tạo Migration để hạn chế xung đột.
+    • Khi thay đổi Entity phải tạo Migration mới có tên thể hiện nội dung thay đổi, không xóa toàn bộ lịch sử Migration chỉ để chạy lại.
+    • Project sau khi clone phải có khả năng cấu hình Connection String và tạo Database từ Migration.
+11. YÊU CẦU VỀ ASP.NET CORE MVC
+Ứng dụng phải tuân thủ kiến trúc MVC. Các Controller có thể gồm:
+    • TaiKhoanController.
+    • LoaiPhongController.
+    • PhongKTXController.
+    • SinhVienController.
+    • DangKyKTXController.
+    • PhanPhongController.
+    • ThongKeController.
+Không xây dựng toàn bộ hệ thống trong một Controller. Phải sử dụng phù hợp Model/Entity, Controller, Action, View, ViewModel khi cần, Model Binding, Data Annotation, Validation, Razor Syntax, Tag Helper/HTML Helper, EF Core và LINQ.
+11.1. Quy định Action và xử lý dữ liệu
+    • Các Action Create/Edit POST phải kiểm tra ModelState.IsValid trước khi lưu.
+    • Các thao tác thay đổi dữ liệu quan trọng sử dụng POST và ValidateAntiForgeryToken khi phù hợp.
+    • Khi không tìm thấy bản ghi phải xử lý NotFound hoặc thông báo phù hợp.
+    • Dữ liệu cho select phải được nạp lại khi View trả về do Validation lỗi.
+    • Khuyến khích sử dụng async/await với các thao tác EF Core nhưng sinh viên phải giải thích được mã nguồn.
+12. VALIDATION VÀ XỬ LÝ NGHIỆP VỤ
+Sử dụng Data Annotation phù hợp như [Required], [StringLength], [Range], [EmailAddress], [Phone], [Display].
+Kiểm tra tối thiểu:
+    • Mã sinh viên không trùng.
+    • Tên phòng không trùng.
+    • Sức chứa > 0.
+    • Đơn giá > 0.
+    • Ngày hợp lệ.
+    • Không phân sinh viên vào phòng đã đầy.
+    • Không phân vào phòng tạm ngừng.
+    • Giới tính phù hợp.
+    • Một sinh viên không ở hai phòng đồng thời.
+    • Không chuyển vào chính phòng đang ở.
+    • Không trả phòng hai lần.
+Các quy tắc nghiệp vụ không phù hợp với Data Annotation phải kiểm tra tại Controller hoặc lớp xử lý nghiệp vụ.
+12.1. Validation theo từng tầng
+Validation thuộc tính đơn giản thực hiện bằng Data Annotation. Các quy tắc phụ thuộc dữ liệu Database hoặc nhiều Entity phải kiểm tra bằng LINQ tại Controller/lớp nghiệp vụ.
+    • Data Annotation: bắt buộc, độ dài, định dạng Email/Phone, khoảng giá trị.
+    • LINQ/Database: trùng tên phòng, phòng còn chỗ, sinh viên đang ở phòng khác, đăng ký đang hoạt động.
+    • Sau khi kiểm tra nghiệp vụ thất bại phải trả lại View kèm thông báo rõ nguyên nhân, không chỉ báo lỗi chung.
+13. YÊU CẦU VỀ RAZOR VIEW
+Không giữ nguyên hoàn toàn View do Scaffolding sinh ra. Phải chỉnh sửa phù hợp:
+    • Ngày dùng type="date".
+    • Mô tả/Ghi chú dùng textarea.
+    • Loại phòng dùng select.
+    • Phòng dùng select.
+    • Giới tính dùng radio hoặc select.
+    • Trạng thái dùng kiểu nhập liệu phù hợp.
+    • Có Validation Message.
+    • Hiển thị tên đối tượng liên quan thay cho chỉ mã khóa ngoại.
+    • Định dạng ngày và tiền phù hợp.
+13.1. Yêu cầu trang danh sách và biểu mẫu
+    • Index phải hiển thị các thông tin cần thiết để người dùng hiểu dữ liệu, không hiển thị toàn bộ khóa ngoại dưới dạng số.
+    • Form Create/Edit chỉ cho nhập các trường người dùng có quyền thay đổi; các trường như NgayDangKy hoặc trạng thái nghiệp vụ do hệ thống xác định không cho nhập tùy ý.
+    • Các nút thao tác Phân phòng, Chuyển phòng, Trả phòng chỉ hiển thị khi trạng thái hiện tại cho phép, đồng thời Controller vẫn phải kiểm tra lại.
+14. TÌM KIẾM, LỌC, SẮP XẾP, PHÂN TRANG VÀ LINQ
+Danh sách phòng bắt buộc thực hiện đầy đủ:
+Tìm kiếm + Lọc + Sắp xếp + Phân trang
+Khi chuyển trang phải giữ toàn bộ điều kiện. LINQ còn phải sử dụng để:
+    • Tính số người đang ở.
+    • Tính số chỗ còn.
+    • Kiểm tra phòng đầy.
+    • Kiểm tra sinh viên đã có phòng.
+    • Dashboard.
+    • Thống kê.
+Không tải toàn bộ dữ liệu rồi dùng JavaScript để giả lập phân trang.
+14.1. Yêu cầu truy vấn LINQ bắt buộc khi bảo vệ
+Nhóm phải chỉ ra được các truy vấn LINQ thực tế trong Project và giải thích thứ tự xử lý. Giảng viên có thể thay đổi một điều kiện tìm kiếm/lọc hoặc yêu cầu thêm một tiêu chí nhỏ để kiểm tra khả năng làm chủ mã nguồn.
+    • Where() cho tìm kiếm/lọc.
+    • OrderBy()/OrderByDescending() cho sắp xếp.
+    • Count()/Any() cho kiểm tra sức chứa và trạng thái.
+    • GroupBy() cho thống kê.
+    • Skip()/Take() hoặc giải pháp tương đương cho phân trang.
+15. DỮ LIỆU MẪU
+Tối thiểu:
+    • 04 loại phòng.
+    • 20 phòng KTX.
+    • 30 sinh viên.
+    • 01-02 tài khoản Admin.
+    • Tài khoản sinh viên tương ứng.
+    • 25-30 đăng ký KTX.
+    • Dữ liệu phân phòng đủ để có phòng còn chỗ và phòng đã đầy.
+Dữ liệu phải đủ để kiểm tra CRUD, Validation, Search, Filter, Sort, Pagination, đăng nhập, phân quyền, phân phòng, chuyển phòng, trả phòng, Dashboard và thống kê. Danh sách phòng phải đủ dữ liệu để tạo nhiều trang.
+15.1. Yêu cầu tình huống dữ liệu kiểm thử
+    • Có ít nhất một phòng còn nhiều chỗ, một phòng chỉ còn một chỗ và một phòng đã đầy.
+    • Có phòng Tạm ngừng để kiểm tra không cho phân phòng.
+    • Có đăng ký Chờ duyệt, Đã phân phòng, Đã trả phòng và Đã hủy.
+    • Có sinh viên đã chuyển phòng để kiểm tra lịch sử.
+    • Có dữ liệu nam/nữ phù hợp để kiểm tra quy tắc giới tính phòng.
+16. YÊU CẦU GIAO DIỆN
+16.1. Phía sinh viên
+    • Trang chủ.
+    • Đăng nhập.
+    • Danh sách phòng.
+    • Tìm kiếm/Lọc/Sắp xếp/Phân trang.
+    • Đăng ký KTX.
+    • Xem trạng thái đăng ký.
+    • Xem phòng hiện tại.
+    • Lịch sử ở.
+    • Thông tin cá nhân.
+16.2. Phía Admin
+    • Quản lý loại phòng.
+    • Quản lý phòng.
+    • Quản lý sinh viên.
+    • Quản lý đăng ký.
+    • Phân phòng.
+    • Chuyển phòng.
+    • Trả phòng.
+    • Dashboard.
+    • Thống kê.
+Không đặt nặng thiết kế đồ họa; trọng tâm là chức năng và kỹ thuật ASP.NET Core MVC.
+16.3. Yêu cầu điều hướng
+Sau khi đăng nhập, người dùng phải dễ dàng truy cập đúng chức năng theo vai trò. Các trang danh sách phải có liên kết đến Create/Details/Edit/Delete hoặc nghiệp vụ tương ứng theo quyền và trạng thái.
+17. QUY ĐỊNH GHI THÔNG TIN NGƯỜI THỰC HIỆN TRONG MÃ NGUỒN
+Mỗi sinh viên bắt buộc phải ghi Họ và tên, Mã sinh viên và Nội dung thực hiện tại đầu các file mã nguồn do mình phụ trách chính.
+// Họ và tên: Nguyễn Văn A
+// Mã sinh viên: 22103100001
+// Nội dung thực hiện: Quản lý phòng ký túc xá,
+// tìm kiếm, lọc, sắp xếp và phân trang
+Áp dụng cho Model/Entity, Controller, ViewModel, View và các lớp xử lý do sinh viên phụ trách. Nếu file có nhiều sinh viên cùng thực hiện, phải ghi rõ phần việc từng người.
+Module được phân công -> Comment trong Code -> GitHub Commit -> Bảo vệ trực tiếp
+Không được ghi tên sinh viên vào file nếu sinh viên đó không trực tiếp tham gia thực hiện phần mã nguồn tương ứng.
+18. CHỨC NĂNG NÂNG CAO - KHÔNG BẮT BUỘC
+    • Quản lý tiền điện/nước.
+    • Quản lý hợp đồng KTX.
+    • Quản lý vi phạm.
+    • Upload ảnh sinh viên.
+    • Sơ đồ phòng.
+    • Chart.js.
+    • AJAX.
+    • Xuất Excel/PDF.
+    • Email.
+    • ASP.NET Core Identity.
+Các chức năng nâng cao không được thay thế chức năng bắt buộc còn thiếu.
+19. QUY ĐỊNH SỬ DỤNG AI
+Sinh viên được phép sử dụng công cụ AI để hỗ trợ tìm hiểu kiến thức, tham khảo thiết kế/mã nguồn, tìm và sửa lỗi, tham khảo LINQ và hỗ trợ giao diện.
+Sinh viên phải hiểu, giải thích, chỉnh sửa được mã nguồn và chịu trách nhiệm đối với mã nguồn đã sử dụng. AI không thay thế yêu cầu báo cáo, bảo vệ và đánh giá trực tiếp.
+20. LÀM VIỆC NHÓM VỚI GITHUB
+Mỗi nhóm dùng 01 Repository GitHub chung. Mỗi sinh viên dùng tài khoản GitHub cá nhân và phải có lịch sử Commit thể hiện công việc.
+Mẫu Commit:
+[Mã SV] [Module] Nội dung công việc
+Ví dụ:
+[22103100001] [PhongKTX] Them chuc nang phan trang
+Không dồn toàn bộ công việc vào một Commit cuối. Thông tin Họ tên + Mã sinh viên + Nội dung thực hiện trong mã nguồn phải đối chiếu được với lịch sử GitHub.
+Thiết kế CSDL -> Thống nhất Entity -> Tạo Project -> DbContext/Migration -> Phân chia Module -> Code -> Commit/Push -> Pull/Tích hợp -> Kiểm thử -> Hoàn thiện
+21. KIỂM THỬ VÀ HOÀN THIỆN
+Phải kiểm thử tối thiểu:
+    • Đăng nhập đúng/sai; tài khoản bị khóa; đăng xuất; phân quyền tại Controller.
+    • CRUD và Validation.
+    • Tìm kiếm có/không có kết quả; lọc kết hợp; sắp xếp; trang đầu/giữa/cuối; giữ điều kiện khi chuyển trang.
+    • Phân phòng còn chỗ.
+    • Phân vào phòng đã đầy.
+    • Phân sai giới tính.
+    • Một sinh viên ở hai phòng.
+    • Chuyển phòng.
+    • Chuyển vào phòng đầy.
+    • Trả phòng.
+    • Trả phòng lần thứ hai.
+    • Sinh viên chỉ xem dữ liệu của mình.
+    • Dashboard và thống kê.
+21.1. Kiểm thử tình huống biên
+    • Phân sinh viên vào phòng chỉ còn đúng 01 chỗ và kiểm tra phòng chuyển sang trạng thái hết chỗ theo giá trị tính toán.
+    • Thử phân thêm một sinh viên sau khi phòng vừa đầy.
+    • Chuyển sinh viên từ phòng đầy sang phòng khác và kiểm tra phòng cũ tăng một chỗ trống.
+    • Trả phòng và kiểm tra Dashboard/thống kê thay đổi đúng.
+    • Thử sửa URL/ID để xem dữ liệu của sinh viên khác bằng tài khoản Sinh viên.
+21.2. Kiểm thử tích hợp
+Không chỉ kiểm thử từng CRUD riêng lẻ. Nhóm phải chạy xuyên suốt một kịch bản: tạo sinh viên/tài khoản -> đăng ký KTX -> Admin duyệt/phân phòng -> chuyển phòng -> trả phòng -> kiểm tra lịch sử và thống kê.
+22. SẢN PHẨM CẦN NỘP
+Mỗi nhóm nộp:
+    7. Source Code hoàn chỉnh.
+    8. Repository GitHub.
+    9. Migration.
+    10. Database hoặc hướng dẫn tạo Database từ Migration.
+    11. Dữ liệu mẫu.
+    12. Tài khoản kiểm thử.
+    13. Báo cáo bài tập lớn theo mẫu quy định.
+    14. Thiết kế cơ sở dữ liệu.
+    15. Bảng phân công công việc.
+    16. Hướng dẫn cài đặt và chạy chương trình.
+    17. Video minh chứng quá trình thực hiện và sản phẩm theo yêu cầu của giảng viên.
+Báo cáo phải thể hiện rõ danh sách thành viên, phân công, phân tích bài toán, thiết kế CSDL, Entity/quan hệ, chức năng, mã nguồn quan trọng, LINQ, Search/Filter/Sort/Pagination, nghiệp vụ phân/chuyển/trả phòng, giao diện/kết quả và quá trình GitHub.
+22.1. Yêu cầu báo cáo phần cá nhân
+Trong báo cáo phải có bảng đối chiếu từng sinh viên với Module, Controller/View/Model chính, chức năng thực hiện và các Commit GitHub tiêu biểu. Nội dung này phải thống nhất với comment trong mã nguồn.
+23. BẢO VỆ VÀ ĐÁNH GIÁ CÁ NHÂN
+Mỗi sinh viên phải trực tiếp trình bày và giải thích phần chức năng mình phụ trách.
+Sinh viên phải giải thích được:
+    • MVC.
+    • Entity.
+    • Primary Key.
+    • Foreign Key.
+    • Navigation Property.
+    • DbContext.
+    • Code First và Migration.
+    • CRUD.
+    • Model Binding.
+    • Data Annotation và Validation.
+    • Razor View.
+    • LINQ.
+    • Search.
+    • Filter.
+    • Sort.
+    • Pagination.
+    • Session.
+    • Đăng nhập.
+    • Phân quyền.
+    • GitHub.
+Đặc biệt phải giải thích được cách tính số chỗ còn và cách kiểm tra phòng đã đầy bằng LINQ. Giảng viên có thể yêu cầu giải thích mã nguồn hoặc thực hiện một thay đổi nhỏ trực tiếp trên Project khi bảo vệ.
+Module được phân công -> Họ tên/Mã sinh viên/Nội dung thực hiện trong mã nguồn -> Lịch sử Commit trên GitHub -> Nội dung sinh viên trực tiếp bảo vệ
+23.1. Một số nội dung có thể kiểm tra trực tiếp
+    • Giải thích vì sao không lưu SoChoCon để Admin nhập trực tiếp.
+    • Viết hoặc sửa truy vấn lấy các phòng còn chỗ.
+    • Giải thích cách ngăn một sinh viên có hai phòng Đang ở.
+    • Giải thích vì sao chuyển phòng phải tạo bản ghi lịch sử mới.
+    • Sửa số bản ghi mỗi trang hoặc bổ sung một điều kiện lọc nhỏ.
+    • Chỉ ra Commit tương ứng với phần mã nguồn mình phụ trách.
+24. QUY TRÌNH NGHIỆP VỤ TỔNG QUÁT
+24.1. Quy trình đối với sinh viên
+Đăng nhập -> Xem phòng -> Tìm kiếm/Lọc/Sắp xếp/Phân trang -> Đăng ký KTX -> Chờ duyệt -> Được phân phòng -> Ở KTX -> Chuyển phòng nếu có -> Trả phòng -> Xem lịch sử
+24.2. Quy trình đối với Admin
+Đăng nhập -> Quản lý loại phòng -> Quản lý phòng -> Quản lý sinh viên -> Duyệt đăng ký -> Kiểm tra chỗ -> Phân phòng -> Chuyển phòng/Trả phòng -> Dashboard -> Thống kê
+24.3. Quy trình xử lý dữ liệu
+Entity -> DbContext -> Entity Framework Core 10 -> Migration -> SQL Server -> LINQ -> Controller -> Razor View
+25. KẾT QUẢ CẦN ĐẠT
+Nhóm phải xây dựng được ứng dụng Web quản lý ký túc xá và phân phòng sinh viên bằng ASP.NET Core 10 MVC, Entity Framework Core 10 và SQL Server.
+Sinh viên phải vận dụng được:
+C# -> ASP.NET Core 10 MVC -> Entity và Data Annotation -> DbContext -> EF Core 10 -> Code First/Migration -> CRUD -> Validation -> Razor View -> LINQ -> Search/Filter/Sort/Pagination -> Session -> Đăng nhập/Phân quyền -> Đăng ký KTX -> Phân phòng -> Kiểm tra sức chứa -> Chuyển phòng -> Trả phòng -> Dashboard/Thống kê -> GitHub
+Số chỗ còn không được nhập trực tiếp mà phải tính theo công thức:
+Số chỗ còn = Sức chứa tối đa của loại phòng - Số sinh viên có trạng thái Đang ở trong phòng
+Mỗi thành viên phải chứng minh phần việc cá nhân bằng mã nguồn có ghi Họ tên - Mã sinh viên - Nội dung thực hiện, lịch sử Commit trên GitHub và phần bảo vệ trực tiếp.
