@@ -3,7 +3,7 @@ Họ và tên: Phạm Quang Nhật
 Mã sinh viên: 23203100085
 Nội dung thực hiện: Quản lý sinh viên, đăng ký ở KTX, xem thông tin/lịch sử ở
 *@
-@model SinhVien
+@model SinhVienFormVM
 @{ bool moi = ViewBag.Moi == true; }
 <div class="page-header"><div class="head-copy"><span class="head-kicker">Members</span><h2>@(moi ? "Thêm" : "Sửa") sinh viên</h2></div></div>
 <div class="form-card">
@@ -18,5 +18,8 @@ Nội dung thực hiện: Quản lý sinh viên, đăng ký ở KTX, xem thông 
 <label asp-for="SoDienThoai"></label><input asp-for="SoDienThoai" /><span asp-validation-for="SoDienThoai"></span>
 <label asp-for="Email"></label><input asp-for="Email" /><span asp-validation-for="Email"></span>
 <label asp-for="DiaChi"></label><textarea asp-for="DiaChi" rows="2"></textarea>
+<p style="margin-top:14px;font-weight:600">Mật khẩu đăng nhập</p>
+<label asp-for="MatKhau"></label><input asp-for="MatKhau" type="password" autocomplete="new-password" required="@(moi ? "required" : "")" placeholder="@(moi ? "Bắt buộc nhập" : "Để trống nếu giữ mật khẩu cũ")" /><span asp-validation-for="MatKhau"></span>
+<label asp-for="XacNhan"></label><input asp-for="XacNhan" type="password" autocomplete="new-password" required="@(moi ? "required" : "")" /><span asp-validation-for="XacNhan"></span>
 <div class="form-actions"><button type="submit">Lưu</button> <a class="btn btn-secondary" asp-action="Index">Quay lại</a></div></form>
 </div>

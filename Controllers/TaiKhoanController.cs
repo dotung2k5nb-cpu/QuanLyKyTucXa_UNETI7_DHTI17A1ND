@@ -26,15 +26,25 @@ public class TaiKhoanController : Controller
         if (!ModelState.IsValid) return View(m);
         m.TenDangNhap = m.TenDangNhap.Trim();
         var tk = db.TaiKhoans.FirstOrDefault(x => x.TenDangNhap == m.TenDangNhap);
-        bool dung = MatKhauHelper.Kiem(m.MatKhau, tk?.MatKhau);
+        bool dung = tk?.MatKhau == m.MatKhau;
+        bool chuyenTuHash = !dung && tk != null && MatKhauHelper.Kiem(m.MatKhau, tk.MatKhau);
+        if (chuyenTuHash) { tk.MatKhau = m.MatKhau; db.SaveChanges(); }
         if (tk == null) { ModelState.AddModelError(nameof(m.TenDangNhap), "Tên đăng nhập không tồn tại."); return View(m); }
         if (tk.TrangThai == TT.Khoa) { ModelState.AddModelError("", "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên."); return View(m); }
-        if (!dung) { ModelState.AddModelError(nameof(m.MatKhau), "Mật khẩu không đúng."); return View(m); }
-        if (MatKhauHelper.CanBamLai(tk.MatKhau)) { tk.MatKhau = MatKhauHelper.Bam(m.MatKhau); db.SaveChanges(); }
+        if (!dung && !chuyenTuHash) { ModelState.AddModelError(nameof(m.MatKhau), "Mật khẩu không đúng."); return View(m); }
         HttpContext.Session.Clear();
         HttpContext.Session.SetInt32("MaTaiKhoan", tk.MaTaiKhoan);
         HttpContext.Session.SetString("HoTen", tk.HoTen);
         HttpContext.Session.SetString("VaiTro", tk.VaiTro);
+        
+        // Fix lỗi 1: Lưu giới tính vào session cho sinh viên
+        if (tk.VaiTro == TT.SinhVien)
+        {
+            var sv = db.SinhViens.FirstOrDefault(s => s.MaTaiKhoan == tk.MaTaiKhoan);
+            if (sv != null)
+                HttpContext.Session.SetString("GioiTinh", sv.GioiTinh);
+        }
+        
         TempData["LoginTransition"] = true;
         return RedirectToAction("Index", "Home");
     }
@@ -53,9 +63,9 @@ public class TaiKhoanController : Controller
         int? id = HttpContext.Session.GetInt32("MaTaiKhoan");
         var tk = id == null ? null : db.TaiKhoans.Find(id.Value);
         if (tk == null) return RedirectToAction(nameof(Login));
-        if (!MatKhauHelper.Kiem(m.MatKhauCu, tk.MatKhau)) { ModelState.AddModelError(nameof(m.MatKhauCu), "Mật khẩu hiện tại không đúng."); return View(m); }
+        if (tk.MatKhau != m.MatKhauCu && !MatKhauHelper.Kiem(m.MatKhauCu, tk.MatKhau)) { ModelState.AddModelError(nameof(m.MatKhauCu), "Mật khẩu hiện tại không đúng."); return View(m); }
         if (m.MatKhauMoi == m.MatKhauCu) { ModelState.AddModelError(nameof(m.MatKhauMoi), "Mật khẩu mới phải khác mật khẩu hiện tại."); return View(m); }
-        tk.MatKhau = MatKhauHelper.Bam(m.MatKhauMoi);
+        tk.MatKhau = m.MatKhauMoi;
         db.SaveChanges();
         TempData["Ok"] = "Đã đổi mật khẩu.";
         return RedirectToAction("Index", "Home");
