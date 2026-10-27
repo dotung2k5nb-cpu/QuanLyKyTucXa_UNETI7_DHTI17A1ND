@@ -1,0 +1,22 @@
+@*
+Họ và tên: Hoàng Tiến Nam
+Mã sinh viên: 23203100029
+Nội dung thực hiện: Quản lý phòng ký túc xá, tìm kiếm, lọc, sắp xếp và phân trang
+*@
+@model PhongKTX
+<div class="page-header"><div class="head-copy"><span class="head-kicker">Operations</span><h2>@(Model.MaPhong == 0 ? "Thêm" : "Sửa") phòng</h2></div></div>
+<div class="form-card">
+<p class="form-intro">Thiết lập vị trí, loại phòng và trạng thái khai thác.</p>
+<form method="post" class="f">
+<input type="hidden" asp-for="MaPhong" />
+<label asp-for="TenPhong"></label><input asp-for="TenPhong" /><span asp-validation-for="TenPhong"></span>
+<label asp-for="MaLoaiPhong"></label><select asp-for="MaLoaiPhong" asp-items="(SelectList)ViewBag.Loais"></select><span asp-validation-for="MaLoaiPhong"></span>
+<label asp-for="ToaNha"></label><input asp-for="ToaNha" /><span asp-validation-for="ToaNha"></span>
+<label asp-for="Tang"></label><input asp-for="Tang" type="number" /><span asp-validation-for="Tang"></span>
+<label>Giới tính phòng</label>
+<label><input type="radio" asp-for="GioiTinhPhong" value="@TT.Nam" /> @TT.Nam</label><label><input type="radio" asp-for="GioiTinhPhong" value="@TT.Nu" /> @TT.Nu</label><span asp-validation-for="GioiTinhPhong"></span>
+<label asp-for="TrangThai"></label><select asp-for="TrangThai"><option>@TT.PhongDung</option><option>@TT.PhongTam</option></select><span asp-validation-for="TrangThai"></span>
+<label asp-for="MoTa"></label><textarea asp-for="MoTa" rows="3"></textarea>
+<small>Số chỗ còn được hệ thống tự tính từ sức chứa loại phòng và số sinh viên đang ở.</small>
+<div class="form-actions"><button type="submit">Lưu</button> <a class="btn btn-secondary" asp-action="Index">Quay lại</a></div></form>
+</div>

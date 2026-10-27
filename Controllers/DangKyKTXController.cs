@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
-using QuanLyKyTucXa_UNETI7_TI17A1ND.Data;
-using QuanLyKyTucXa_UNETI7_TI17A1ND.Filters;
-using QuanLyKyTucXa_UNETI7_TI17A1ND.Models;
+using QuanLyKyTucXa_UNETI7_DHTI17A1ND.Data;
+using QuanLyKyTucXa_UNETI7_DHTI17A1ND.Filters;
+using QuanLyKyTucXa_UNETI7_DHTI17A1ND.Models;
 
-namespace QuanLyKyTucXa_UNETI7_TI17A1ND.Controllers;
+namespace QuanLyKyTucXa_UNETI7_DHTI17A1ND.Controllers;
 
 [Quyen]
 public class DangKyKTXController : Controller

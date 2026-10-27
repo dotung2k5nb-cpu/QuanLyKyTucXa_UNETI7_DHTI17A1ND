@@ -3,11 +3,11 @@
 // Nội dung thực hiện: Tài khoản, đăng nhập, phân quyền, quản lý loại phòng
 
 using Microsoft.AspNetCore.Mvc;
-using QuanLyKyTucXa_UNETI7_TI17A1ND.Data;
-using QuanLyKyTucXa_UNETI7_TI17A1ND.Filters;
-using QuanLyKyTucXa_UNETI7_TI17A1ND.Models;
-using QuanLyKyTucXa_UNETI7_TI17A1ND.Services;
-namespace QuanLyKyTucXa_UNETI7_TI17A1ND.Controllers;
+using QuanLyKyTucXa_UNETI7_DHTI17A1ND.Data;
+using QuanLyKyTucXa_UNETI7_DHTI17A1ND.Filters;
+using QuanLyKyTucXa_UNETI7_DHTI17A1ND.Models;
+using QuanLyKyTucXa_UNETI7_DHTI17A1ND.Services;
+namespace QuanLyKyTucXa_UNETI7_DHTI17A1ND.Controllers;
 
 public class TaiKhoanController : Controller
 {

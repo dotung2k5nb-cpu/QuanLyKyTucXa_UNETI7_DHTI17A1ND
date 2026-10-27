@@ -1,5 +1,5 @@
 /* ============================================================================
-   TOAN BO SCRIPT CO SO DU LIEU - QUAN LY KY TUC XA - UNETI7 - TI17A1ND
+   TOAN BO SCRIPT CO SO DU LIEU - QUAN LY KY TUC XA - UNETI7 - DHTI17A1ND
    (Gop tu 7 file .sql trong du an)
 
    Thu muc:
@@ -17,7 +17,7 @@
    ------------------------------------------------------------------------------ */
 
 /* ============================================================================
-   QUAN LY KY TUC XA - UNETI7 - TI17A1ND
+   QUAN LY KY TUC XA - UNETI7 - DHTI17A1ND
    Script tao lai CSDL QuanLyKTX_UNETI7 tu dau (schema cuoi cung cua EF Core)
 
    - Tuong duong 6 migration, tu 20261004040702 den 20261022030102.
