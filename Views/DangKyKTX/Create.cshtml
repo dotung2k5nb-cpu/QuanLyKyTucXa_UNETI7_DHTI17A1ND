@@ -8,7 +8,7 @@ Nội dung thực hiện: Quản lý sinh viên, đăng ký ở KTX, xem thông 
 <div asp-validation-summary="All"></div>
 <div class="form-card">
 <p class="form-intro">Chọn thời gian lưu trú dự kiến và gửi nguyện vọng phòng để ban quản lý xét duyệt.</p>
-<form method="post" class="f">
+<form method="post" class="f">@Html.AntiForgeryToken()
 <label asp-for="NgayBatDau"></label><input asp-for="NgayBatDau" type="date" value="@Model.NgayBatDau.ToString("yyyy-MM-dd")" /><span asp-validation-for="NgayBatDau"></span>
 <label asp-for="NgayKetThucDuKien"></label><input asp-for="NgayKetThucDuKien" type="date" value="@Model.NgayKetThucDuKien.ToString("yyyy-MM-dd")" /><span asp-validation-for="NgayKetThucDuKien"></span>
 <label asp-for="NguyenVongLoaiPhong"></label><select asp-for="NguyenVongLoaiPhong" asp-items="(SelectList)ViewBag.Loais"><option value="">-- Không chọn --</option></select>
