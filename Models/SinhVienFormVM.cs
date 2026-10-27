@@ -3,7 +3,7 @@
 // Nội dung thực hiện: Form thêm/sửa sinh viên kèm đặt mật khẩu đăng nhập
 
 using System.ComponentModel.DataAnnotations;
-namespace QuanLyKyTucXa_UNETI7_DHTI17A1ND.Models;
+namespace QuanLyKyTucXa_UNETI7_TI17A1ND.Models;
 
 public class SinhVienFormVM : SinhVien
 {

@@ -3,7 +3,7 @@
 // Nội dung thực hiện: Quản lý sinh viên, đăng ký ở KTX, xem thông tin/lịch sử ở
 
 using System.ComponentModel.DataAnnotations;
-namespace QuanLyKyTucXa_UNETI7_DHTI17A1ND.Models;
+namespace QuanLyKyTucXa_UNETI7_TI17A1ND.Models;
 
 public class DangKyKTX : IValidatableObject
 {
