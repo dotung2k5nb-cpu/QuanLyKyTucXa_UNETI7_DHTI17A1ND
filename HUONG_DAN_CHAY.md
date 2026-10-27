@@ -1,6 +1,6 @@
 # HƯỚNG DẪN CHẠY DỰ ÁN — QUẢN LÝ KÝ TÚC XÁ
 
-**Dự án:** QuanLyKyTucXa_UNETI7_TI17A1ND
+**Dự án:** QuanLyKyTucXa_UNETI7_DHTI17A1ND
 **Công nghệ:** ASP.NET Core 10 MVC + C# + Entity Framework Core 10 + SQL Server (LocalDB)
 **URL:** http://localhost:5080
 

@@ -203,4 +203,104 @@ public class DangKyKTXController : Controller
         if (dangO >= p.LoaiPhong.SoNguoiToiDa) return $"Phòng {p.TenPhong} đã đủ người ({dangO}/{p.LoaiPhong.SoNguoiToiDa}).";
         return null;
     }
+
+    private string MaSinhVienCuaToi() =>
+        HttpContext.Session.GetInt32("MaTaiKhoan") == null ? null
+            : db.SinhViens.AsNoTracking().FirstOrDefault(s => s.MaTaiKhoan == HttpContext.Session.GetInt32("MaTaiKhoan"))?.MaSinhVien;
+
+    [Quyen(TT.Admin)]
+    public IActionResult Details(int id)
+    {
+        var d = db.DangKys.Include(x => x.SinhVien).Include(x => x.LoaiPhongNV)
+            .Include(x => x.PhanPhongs).ThenInclude(p => p.Phong)
+            .FirstOrDefault(x => x.MaDangKy == id);
+        return d == null ? NotFound() : View(d);
+    }
+
+    [Quyen(TT.Admin)]
+    public IActionResult Duyet(int id)
+    {
+        var dk = db.DangKys.Include(x => x.SinhVien).Include(x => x.LoaiPhongNV).FirstOrDefault(x => x.MaDangKy == id);
+        if (dk == null)
+            return NotFound();
+
+        ViewBag.NgayVao = DateTime.Today.ToString("yyyy-MM-dd");
+        ViewBag.Phongs = PhongPhuHop(dk.SinhVien.GioiTinh, null, dk.NguyenVongLoaiPhong);
+        return View(dk);
+    }
+
+    [Quyen(TT.Admin), HttpPost, ValidateAntiForgeryToken]
+    public IActionResult DuyetXacNhan(int id, int maPhong, DateTime? ngayVao)
+    {
+        var dk = db.DangKys.Include(x => x.SinhVien).Include(x => x.LoaiPhongNV).FirstOrDefault(x => x.MaDangKy == id);
+        if (dk == null)
+            return NotFound();
+
+        string loi = null;
+        if (dk.TrangThai != TT.Cho) loi = "Đăng ký không ở trạng thái Chờ duyệt.";
+        else if (dk.SinhVien.TrangThai != TT.HoatDong) loi = "Sinh viên đang bị khóa (không hoạt động), không thể phân phòng.";
+        else if (db.PhanPhongs.Any(p => p.TrangThai == TT.Dang && p.DangKy.MaSinhVien == dk.MaSinhVien)) loi = "Sinh viên đang ở một phòng khác.";
+        else if (ngayVao == null) loi = "Vui lòng chọn ngày vào ở.";
+        else if (ngayVao.Value.Date < DateTime.Today) loi = "Ngày vào ở không được ở quá khứ.";
+        else if (ngayVao.Value.Date > dk.NgayKetThucDuKien.Date) loi = "Ngày vào ở không được sau ngày kết thúc dự kiến.";
+        else loi = KiemTraPhong(maPhong, dk.SinhVien.GioiTinh);
+        if (loi != null)
+        {
+            ViewBag.Loi = loi;
+            ViewBag.MaPhong = maPhong;
+            ViewBag.NgayVao = (ngayVao ?? DateTime.Today).ToString("yyyy-MM-dd");
+            ViewBag.Phongs = PhongPhuHop(dk.SinhVien.GioiTinh, null, dk.NguyenVongLoaiPhong);
+            return View(dk);
+        }
+
+        db.PhanPhongs.Add(new PhanPhong { MaDangKy = dk.MaDangKy, MaPhong = maPhong, NgayVao = ngayVao.Value.Date, TrangThai = TT.Dang });
+        dk.TrangThai = TT.DaPhan;
+        db.SaveChanges();
+        TempData["Ok"] = "Duyệt và phân phòng thành công.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [Quyen(TT.Admin)]
+    public IActionResult TuChoi(int id)
+    {
+        var dk = db.DangKys.Include(x => x.SinhVien).Include(x => x.LoaiPhongNV).FirstOrDefault(x => x.MaDangKy == id);
+        return dk == null ? NotFound() : View(dk);
+    }
+
+    [Quyen(TT.Admin), HttpPost, ValidateAntiForgeryToken]
+    public IActionResult TuChoiXacNhan(int id, string ghiChu = null)
+    {
+        var dk = db.DangKys.Find(id);
+        if (dk == null)
+            return NotFound();
+
+        if (dk.TrangThai != TT.Cho)
+        {
+            TempData["Loi"] = "Chỉ đăng ký ở trạng thái Chờ duyệt mới được từ chối.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        dk.TrangThai = TT.TuChoi;
+        dk.GhiChu = string.IsNullOrWhiteSpace(ghiChu) ? null : ghiChu.Trim();
+        db.SaveChanges();
+        TempData["Ok"] = "Đã từ chối đăng ký.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    private List<PhongRow> PhongPhuHop(string gt, int? boQua = null, int? uuTien = null) =>
+        db.Phongs.Where(p => p.TrangThai == TT.PhongDung && p.GioiTinhPhong == gt && p.MaPhong != boQua)
+            .Select(p => new PhongRow { P = p, TenLoai = p.LoaiPhong.TenLoaiPhong, SucChua = p.LoaiPhong.SoNguoiToiDa, DangO = p.PhanPhongs.Count(x => x.TrangThai == TT.Dang) })
+            .Where(r => r.SucChua - r.DangO > 0).ToList()
+            .OrderByDescending(r => uuTien != null && r.P.MaLoaiPhong == uuTien).ThenBy(r => r.P.TenPhong).ToList();
+
+    private string KiemTraPhong(int maPhong, string gt)
+    {
+        var p = db.Phongs.Include(x => x.LoaiPhong).FirstOrDefault(x => x.MaPhong == maPhong);
+        if (p == null) return "Phòng không tồn tại.";
+        if (p.TrangThai != TT.PhongDung) return "Phòng đang tạm ngừng.";
+        if (p.GioiTinhPhong != gt) return $"Phòng {p.TenPhong} dành cho {p.GioiTinhPhong}, không phù hợp giới tính sinh viên.";
+        int dangO = db.PhanPhongs.Count(x => x.MaPhong == maPhong && x.TrangThai == TT.Dang);
+        if (dangO >= p.LoaiPhong.SoNguoiToiDa) return $"Phòng {p.TenPhong} đã đủ người ({dangO}/{p.LoaiPhong.SoNguoiToiDa}).";
+        return null;
+    }
 }

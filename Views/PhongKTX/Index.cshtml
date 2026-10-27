@@ -1,0 +1,78 @@
+@*
+Họ và tên: Hoàng Tiến Nam
+Mã sinh viên: 23203100029
+Nội dung thực hiện: Quản lý phòng ký túc xá, tìm kiếm, lọc, sắp xếp và phân trang
+*@
+@model PhongListVM
+@{ var admin = Context.Session.GetString("VaiTro") == TT.Admin; }
+<div class="page-header">
+    <div class="head-copy">
+        <span class="head-kicker">Operations</span>
+        <h2>Quản lý phòng</h2>
+    </div>
+    @if (admin) { <a class="btn" asp-action="Create">Thêm phòng</a> }
+</div>
+
+@if (!admin) { <p><i>Chỉ hiển thị các phòng đang sử dụng và còn chỗ (còn khả năng tiếp nhận).</i></p> }
+
+<div class="filter-panel">
+    <div class="filter-heading">
+        <strong>Tìm kiếm và lọc phòng</strong>
+        <span>Kết hợp các điều kiện bên dưới để thu hẹp danh sách.</span>
+    </div>
+    <form method="get" class="filter-form">
+        <label class="filter-field"><span>Tên phòng</span><input name="q" value="@Model.Q" placeholder="Ví dụ: P01" /></label>
+        <label class="filter-field"><span>Tòa nhà</span><input name="toa" value="@Model.Toa" placeholder="Nhập tên hoặc một phần tên tòa" /></label>
+        <label class="filter-field"><span>Tầng</span><input name="tang" type="number" min="1" max="50" value="@Model.Tang" placeholder="Tất cả tầng" /></label>
+        <label class="filter-field"><span>Loại phòng</span>
+            <select name="loai"><option value="">Tất cả loại phòng</option>@foreach (var l in Model.Loais) { <option value="@l.MaLoaiPhong" selected="@(Model.Loai == l.MaLoaiPhong)">@l.TenLoaiPhong</option> }</select>
+        </label>
+        <label class="filter-field"><span>Giới tính phòng</span>
+            <select name="gt"><option value="">Tất cả</option><option value="@TT.Nam" selected="@(Model.Gt == TT.Nam)">@TT.Nam</option><option value="@TT.Nu" selected="@(Model.Gt == TT.Nu)">@TT.Nu</option></select>
+        </label>
+        @if (admin) {
+            <label class="filter-field"><span>Trạng thái phòng</span>
+                <select name="tt"><option value="">Tất cả trạng thái</option><option value="@TT.PhongDung" selected="@(Model.Tt == TT.PhongDung)">@TT.PhongDung</option><option value="@TT.PhongTam" selected="@(Model.Tt == TT.PhongTam)">@TT.PhongTam</option></select>
+            </label>
+            <label class="filter-field"><span>Sức chứa còn</span>
+                <select name="cho"><option value="">Tất cả phòng</option><option value="con" selected="@(Model.Cho == "con")">Còn chỗ</option><option value="het" selected="@(Model.Cho == "het")">Đã hết chỗ</option></select>
+            </label>
+        }
+        <label class="filter-field"><span>Sắp xếp kết quả</span>
+            <select name="sort">
+                <option value="">Tên phòng A→Z</option><option value="ten_desc" selected="@(Model.Sort == "ten_desc")">Tên phòng Z→A</option>
+                <option value="tang_asc" selected="@(Model.Sort == "tang_asc")">Tầng tăng dần</option><option value="tang_desc" selected="@(Model.Sort == "tang_desc")">Tầng giảm dần</option>
+                <option value="cho_asc" selected="@(Model.Sort == "cho_asc")">Chỗ còn tăng dần</option><option value="cho_desc" selected="@(Model.Sort == "cho_desc")">Chỗ còn giảm dần</option>
+            </select>
+        </label>
+        <div class="filter-actions"><button type="submit">Áp dụng bộ lọc</button><a class="btn btn-secondary" asp-action="Index">Đặt lại</a></div>
+    </form>
+</div>
+
+<p>Kết quả: <b>@Model.Total</b> phòng phù hợp.</p>
+@if (Model.Total == 0) { <p><i>Không tìm thấy phòng phù hợp. Hãy bỏ bớt điều kiện lọc hoặc đặt lại bộ lọc.</i></p> } else {
+<div class="table-panel">
+  <div class="table-wrap">
+    <table>
+      <tr><th>Phòng</th><th>Loại</th><th>Tòa</th><th>Tầng</th><th>Giới tính</th><th>Sức chứa</th><th>Đang ở</th><th>Còn chỗ</th><th>Trạng thái</th>@if (admin) { <th>Hành động</th> }</tr>
+      @foreach (var r in Model.Items) {
+      <tr>
+        <td>@r.P.TenPhong</td>
+        <td>@r.TenLoai</td>
+        <td>@r.P.ToaNha</td>
+        <td>@r.P.Tang</td>
+        <td>@r.P.GioiTinhPhong</td>
+        <td>@r.SucChua</td>
+        <td>@r.DangO</td>
+        <td>@(r.ConCho > 0 ? r.ConCho.ToString() : "Hết chỗ")</td>
+        <td><span class="status-pill">@r.P.TrangThai</span></td>
+        @if (admin) {
+          <td><div class="actions-cell"><a class="btn btn-secondary" asp-action="Details" asp-route-id="@r.P.MaPhong">Chi tiết</a> <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@r.P.MaPhong">Sửa</a><form class="inline" method="post" asp-action="Delete" asp-route-id="@r.P.MaPhong" data-confirm="Bạn có chắc muốn xóa phòng này? Thao tác này không thể hoàn tác." data-confirm-title="Xóa phòng"><button class="btn2">Xóa</button></form></div></td>
+        }
+      </tr> }
+    </table>
+  </div>
+</div>
+<div class="pager">Trang:
+@for (int i = 1; i <= Model.Pages; i++) { if (i == Model.Page) { <b>[@i]</b> } else { <a asp-action="Index" asp-all-route-data="Model.Route(i)">@i</a> } }
+</div> }
