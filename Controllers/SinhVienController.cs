@@ -47,32 +47,38 @@ public class SinhVienController : Controller
         });
     }
 
-    public IActionResult Create() { ViewBag.Moi = true; return View("Form", new SinhVien()); }
+    public IActionResult Create() { ViewBag.Moi = true; return View("Form", new SinhVienFormVM()); }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult Create([Bind("MaSinhVien,HoTen,NgaySinh,GioiTinh,Lop,Khoa,SoDienThoai,Email,DiaChi")] SinhVien m)
+    public IActionResult Create([Bind("MaSinhVien,HoTen,NgaySinh,GioiTinh,Lop,Khoa,SoDienThoai,Email,DiaChi,MatKhau,XacNhan")] SinhVienFormVM m)
     {
         ModelState.Remove("TaiKhoan");
         m.TrangThai = TT.HoatDong; ModelState.Remove("TrangThai");
         if (db.SinhViens.Any(x => x.MaSinhVien == m.MaSinhVien) || db.TaiKhoans.Any(t => t.TenDangNhap == m.MaSinhVien)) ModelState.AddModelError("MaSinhVien", "Mã sinh viên đã tồn tại");
         if (m.NgaySinh >= DateTime.Today || m.NgaySinh < new DateTime(1980, 1, 1)) ModelState.AddModelError("NgaySinh", "Ngày sinh không hợp lệ");
+        if (string.IsNullOrWhiteSpace(m.MatKhau)) ModelState.AddModelError("MatKhau", "Nhập mật khẩu đăng nhập cho sinh viên");
+        if (m.MatKhau != m.XacNhan) ModelState.AddModelError("XacNhan", "Xác nhận mật khẩu không khớp");
         if (!ModelState.IsValid) { ViewBag.Moi = true; return View("Form", m); }
-        var mkTam = MatKhauHelper.TaoMatKhauTam();
-        m.TaiKhoan = new TaiKhoan { TenDangNhap = m.MaSinhVien, MatKhau = MatKhauHelper.Bam(mkTam), HoTen = m.HoTen, Email = m.Email, VaiTro = TT.SinhVien };
+        m.TaiKhoan = new TaiKhoan { TenDangNhap = m.MaSinhVien, MatKhau = m.MatKhau, HoTen = m.HoTen, Email = m.Email, VaiTro = TT.SinhVien };
         db.SinhViens.Add(m); db.SaveChanges();
-        TempData["Ok"] = $"Đã tạo sinh viên và tài khoản {m.MaSinhVien}. Mật khẩu tạm thời: {mkTam} (chỉ hiển thị một lần, hãy gửi cho sinh viên và yêu cầu đổi mật khẩu).";
+        TempData["Ok"] = $"Đã tạo sinh viên và tài khoản {m.MaSinhVien} (mật khẩu đăng nhập do bạn đặt).";
         return RedirectToAction(nameof(Index));
     }
 
     public IActionResult Edit(string id)
     {
-        var m = db.SinhViens.Find(id);
+        var sv = db.SinhViens.Find(id);
+        if (sv == null) return NotFound();
         ViewBag.Moi = false;
-        return m == null ? NotFound() : View("Form", m);
+        return View("Form", new SinhVienFormVM
+        {
+            MaSinhVien = sv.MaSinhVien, HoTen = sv.HoTen, NgaySinh = sv.NgaySinh, GioiTinh = sv.GioiTinh,
+            Lop = sv.Lop, Khoa = sv.Khoa, SoDienThoai = sv.SoDienThoai, Email = sv.Email, DiaChi = sv.DiaChi
+        });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult Edit(string id, SinhVien m)
+    public IActionResult Edit(string id, SinhVienFormVM m)
     {
         if (id != m.MaSinhVien) return NotFound();
         ViewBag.Moi = false;
@@ -86,12 +92,24 @@ public class SinhVienController : Controller
             if (dangO != null && dangO.GioiTinhPhong != m.GioiTinh)
                 ModelState.AddModelError("GioiTinh", $"Không thể đổi giới tính: sinh viên đang ở phòng {dangO.TenPhong} (dành cho {dangO.GioiTinhPhong}). Hãy chuyển phòng hoặc trả phòng trước.");
         }
+        if (!string.IsNullOrWhiteSpace(m.MatKhau) && m.MatKhau != m.XacNhan) ModelState.AddModelError("XacNhan", "Xác nhận mật khẩu không khớp");
         if (!ModelState.IsValid) { ViewBag.Moi = false; return View("Form", m); }
         cu.HoTen = m.HoTen; cu.NgaySinh = m.NgaySinh; cu.GioiTinh = m.GioiTinh; cu.Lop = m.Lop; cu.Khoa = m.Khoa;
         cu.SoDienThoai = m.SoDienThoai; cu.Email = m.Email; cu.DiaChi = m.DiaChi;
+        var thongBao = $"Đã cập nhật sinh viên {m.HoTen}.";
         var tk = db.TaiKhoans.Find(cu.MaTaiKhoan);
-        if (tk != null) { tk.HoTen = cu.HoTen; tk.Email = cu.Email; }
-        db.SaveChanges(); return RedirectToAction(nameof(Index));
+        if (tk != null)
+        {
+            tk.HoTen = cu.HoTen; tk.Email = cu.Email;
+            if (!string.IsNullOrWhiteSpace(m.MatKhau))
+            {
+                tk.MatKhau = m.MatKhau;
+                thongBao += " Đã đặt lại mật khẩu đăng nhập cho sinh viên.";
+            }
+        }
+        db.SaveChanges();
+        TempData["Ok"] = thongBao;
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -100,7 +118,7 @@ public class SinhVienController : Controller
         var s = db.SinhViens.Find(id); if (s == null) return NotFound();
         var tk = db.TaiKhoans.Find(s.MaTaiKhoan); if (tk == null) return NotFound();
         var mkTam = MatKhauHelper.TaoMatKhauTam();
-        tk.MatKhau = MatKhauHelper.Bam(mkTam);
+        tk.MatKhau = mkTam;
         db.SaveChanges();
         TempData["Ok"] = $"Đã đặt lại mật khẩu cho {s.MaSinhVien}. Mật khẩu tạm thời: {mkTam} (chỉ hiển thị một lần, hãy gửi cho sinh viên và yêu cầu đổi mật khẩu).";
         return RedirectToAction(nameof(Index));
