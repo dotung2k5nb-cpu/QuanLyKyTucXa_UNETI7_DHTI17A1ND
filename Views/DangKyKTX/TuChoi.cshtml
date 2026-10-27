@@ -1,30 +1,33 @@
-@model QuanLyKyTucXa_UNETI7_TI17A1ND.Models.DangKyKTX
-
-<h2>Từ chối đăng ký KTX cho @Model.SinhVien.HoTen</h2>
-
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+@*
+Họ và tên: Phạm Quang Nhật
+Mã sinh viên: 23203100085
+Nội dung thực hiện: Quản lý sinh viên, đăng ký ở KTX, xem thông tin/lịch sử ở
+*@
+@model DangKyKTX
+@{
+  bool cho = Model.TrangThai == TT.Cho;
 }
-
-<form asp-action="TuChoi" method="post">
-    <input type="hidden" name="id" value="@Model.MaDangKy" />
-
-    <div class="form-group">
-        <label>Mã sinh viên:</label>
-        <input type="text" class="form-control" value="@Model.MaSinhVien" readonly />
-    </div>
-
-    <div class="form-group">
-        <label>Họ tên:</label>
-        <input type="text" class="form-control" value="@Model.SinhVien.HoTen" readonly />
-    </div>
-
-    <div class="form-group">
-        <label>Lý do từ chối:</label>
-        <textarea name="LyDo" class="form-control" required></textarea>
-    </div>
-
-    <button type="submit" class="btn btn-danger">Xác nhận từ chối</button>
-    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+<div class="page-header"><div class="head-copy"><span class="head-kicker">Reject application</span><h2>Từ chối đăng ký của @Model.SinhVien.HoTen</h2></div></div>
+<div class="section-header"><div class="head-copy"><span class="head-kicker">Application #@Model.MaDangKy</span><h3>Thông tin đăng ký</h3></div></div>
+<div class="table-panel"><div class="table-wrap"><table>
+<tr><th>Sinh viên</th><td>@Model.SinhVien.MaSinhVien - @Model.SinhVien.HoTen (lớp @Model.SinhVien.Lop, @Model.SinhVien.Khoa)</td></tr>
+<tr><th>Ngày đăng ký</th><td>@Model.NgayDangKy.ToString("dd/MM/yyyy HH:mm")</td></tr>
+<tr><th>Thời gian lưu trú dự kiến</th><td>@Model.NgayBatDau.ToString("dd/MM/yyyy") – @Model.NgayKetThucDuKien.ToString("dd/MM/yyyy")</td></tr>
+<tr><th>Nguyện vọng</th><td>@(Model.LoaiPhongNV?.TenLoaiPhong ?? "Không chọn")</td></tr>
+<tr><th>Trạng thái</th><td><span class="status-pill">@Model.TrangThai</span></td></tr>
+</table></div></div>
+@if (!cho) {
+<div class="err">Chỉ đăng ký ở trạng thái "Chờ duyệt" mới được từ chối. Đăng ký này đang ở trạng thái "@Model.TrangThai".</div>
+<div class="form-actions"><a class="btn btn-secondary" asp-action="Index">Quay lại</a></div>
+}
+else {
+<div class="section-header section-spaced"><div class="head-copy"><span class="head-kicker">Reason</span><h3>Lý do từ chối</h3></div></div>
+<form method="post" asp-action="TuChoiXacNhan" id="fTuChoi" data-confirm="Từ chối đăng ký này? Thao tác không thể hoàn tác.">
+@Html.AntiForgeryToken()
+<input type="hidden" name="id" value="@Model.MaDangKy" />
+<label for="ghiChu">Lý do (không bắt buộc, sẽ lưu vào ghi chú của đăng ký)</label>
+<textarea id="ghiChu" name="ghiChu" rows="3" placeholder="VD: Hết chỉ tiêu phòng phù hợp cho kỳ này."></textarea>
+<button type="submit" class="btn btn-danger">Xác nhận từ chối</button>
+<a class="btn btn-secondary" asp-action="Index">Quay lại</a>
 </form>
+}

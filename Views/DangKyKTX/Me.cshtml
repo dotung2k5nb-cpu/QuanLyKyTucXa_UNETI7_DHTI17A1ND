@@ -32,7 +32,7 @@ Nội dung thực hiện: Quản lý sinh viên, đăng ký ở KTX, xem thông 
 <div class="table-panel"><div class="table-wrap"><table><tr><th>Ngày đăng ký</th><th>Bắt đầu</th><th>Kết thúc dự kiến</th><th>Trạng thái</th><th></th></tr>
 @foreach (var d in Model.DangKys.OrderByDescending(x => x.NgayDangKy)) {
 <tr><td>@d.NgayDangKy.ToString("dd/MM/yyyy")</td><td>@d.NgayBatDau.ToString("dd/MM/yyyy")</td><td>@d.NgayKetThucDuKien.ToString("dd/MM/yyyy")</td><td><span class="status-pill">@d.TrangThai</span></td>
-<td>@if (d.TrangThai == TT.Cho) { <form class="inline" method="post" asp-action="Huy" asp-route-id="@d.MaDangKy" data-confirm="Bạn có chắc muốn hủy đăng ký ở ký túc xá này?"><button class="btn2">Hủy</button></form> }</td></tr> }
+<td>@if (d.TrangThai == TT.Cho) { <form class="inline" method="post" asp-action="Huy" asp-route-id="@d.MaDangKy" data-confirm="Bạn có chắc muốn hủy đăng ký ở ký túc xá này?">@Html.AntiForgeryToken()<button class="btn2">Hủy</button></form> }</td></tr> }
 </table></div></div>
 <div class="section-header section-spaced"><div class="head-copy"><span class="head-kicker">History</span><h3>Lịch sử ở KTX</h3></div></div>
 <div class="table-panel"><div class="table-wrap"><table><tr><th>Phòng</th><th>Ngày vào</th><th>Ngày ra</th><th>Trạng thái</th></tr>
